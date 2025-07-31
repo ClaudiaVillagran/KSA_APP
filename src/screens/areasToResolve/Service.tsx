@@ -11,18 +11,23 @@ import { ServicesData } from "../../data/dataAreasToResolve/ServicesData";
 import ServiceCard from "../../components/cards/ServiceCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export default function Service() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
-
+  const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const ServiceArea = areas.find((area) => area.screen === "ServiceScreen");
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const filteredCards = ServicesData.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredCards = ServiceArea
+    ? ServiceArea.categories.filter((category) =>
+        category.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : [];
 
   return (
     <View style={{ flex: 1 }}>
@@ -62,7 +67,12 @@ export default function Service() {
             </Text>
           ) : (
             filteredCards.map((item, index) => (
-              <ServiceCard key={index} imageUrl={item.img} title={item.title} />
+              <ServiceCard
+                key={index}
+                imageUrl={item.img}
+                title={item.title}
+                categoryId={item.id}
+              />
             ))
           )}
 

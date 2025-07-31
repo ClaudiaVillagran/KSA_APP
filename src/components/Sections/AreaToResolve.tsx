@@ -2,65 +2,35 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import { AreasToResolve } from "../../data/AreasToResolve";
 import AreaToRelsoveCard from "../../components/cards/AreaToRelsoveCard";
-import { vs } from "react-native-size-matters";
-import { collection, doc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { setAreas } from "../../store/reducers/areaSlice";
+import { RootState } from "../../store/store";
 export default function AreaToResolve() {
-  const addProductToCategory = async (categoryId, product) => {
-    try {
-      const productRef = doc(
-        collection(
-          db,
-          "areas",
-          "mantencion-y-reparacion",
-          "categories",
-          categoryId,
-          "products"
-        ),
-        product.id
-      );
+  const {areas} =  useSelector((state: RootState) => state.areaSlice);
+  // console.log("from area",areas);
+  // console.log("from areas to resolve",areas[1]);
+ 
 
-      await setDoc(productRef, product);
-      console.log("Producto añadido con éxito.");
-    } catch (e) {
-      console.error("Error al agregar producto: ", e);
-    }
-  };
-
-  // Llamamos a la función para agregar el producto
-  const createProductForCategory = async () => {
-    // const categoryId = ; // ID de la categoría a la que pertenece el producto
-    // await addProductToCategory(categoryId, product);
-  };
-
-  // Llamamos a la función para agregar el producto
-  createProductForCategory();
   return (
     <View style={styles.containerArea}>
       <Text style={styles.title}>Áreas que resolvemos</Text>
 
       <FlatList
         horizontal={true}
-        data={AreasToResolve}
+        data={areas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <AreaToRelsoveCard
             imageUrl={item.imageUrl}
-            title={item.title}
+            title={item.name}
             description={item.description}
             navigateTo={item.screen}
           />
         )}
         showsHorizontalScrollIndicator={false}
       />
-      {/* {AreasToResolve.map((item) => (
-        <AreaToRelsoveCard
-          key={item.id}
-          imageUrl={item.image}
-          title={item.title}
-          description={item.description}
-        />
-      ))} */}
     </View>
   );
 }

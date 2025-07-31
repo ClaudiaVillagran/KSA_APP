@@ -9,6 +9,7 @@ export default function AvailableProductsCard({
   price,
   author,
 }) {
+  // console.log(imageUrl);
   return (
     <View style={styles.card}>
       {/* Botón de compra en la parte superior derecha */}
@@ -16,7 +17,7 @@ export default function AvailableProductsCard({
         <Ionicons name="cart-outline" size={30} color="#fff" />
       </TouchableOpacity>
       {imageUrl ? (
-        <Image source={imageUrl} style={styles.image} />
+        <Image source={{uri:imageUrl}} style={styles.image} />
       ) : (
         <Image style={styles.image} source = {require("../../assets/img/image-not-found-scaled.png")}/>
       )}

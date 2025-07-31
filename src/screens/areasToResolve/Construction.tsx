@@ -11,25 +11,35 @@ import { ConstructionData } from "../../data/dataAreasToResolve/ConstructionData
 import ConstructionCard from "../../components/cards/ConstructionCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import { RootState } from "../../store/store";
+import { useSelector } from "react-redux";
 
 export default function Construction() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
 
+  const { areas } = useSelector((state: RootState) => state.areaSlice);
+
+  const constructionArea = areas.find(
+    (area) => area.screen === "ConstructionScreen"
+  ); // Filtra la área de construcción
+  // console.log(constructionArea);
+
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const filteredCards = ConstructionData.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredCards = constructionArea
+    ? constructionArea.categories.filter((category) =>
+        category.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : [];
+  // console.log(filteredCards);
+
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      >
+      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.container}>
           <ImageBackground
             source={require("../../assets/img/construccion.webp")}
@@ -61,9 +71,7 @@ export default function Construction() {
           />
 
           {filteredCards.length === 0 ? (
-            <Text
-              style={{ textAlign: "center", marginTop: 20, color: "#888" }}
-            >
+            <Text style={{ textAlign: "center", marginTop: 20, color: "#888" }}>
               No se encontraron servicios
             </Text>
           ) : (
@@ -72,6 +80,7 @@ export default function Construction() {
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
+                categoryId={item.id}
               />
             ))
           )}
@@ -79,9 +88,9 @@ export default function Construction() {
           <View style={styles.tipContainer}>
             <Text style={styles.tipTitle}>💡 Consejo KSA</Text>
             <Text style={styles.tipDescription}>
-              Antes de comenzar una obra, asegúrate de contar con un buen plan
-              y permisos al día. Una construcción bien planificada evita
-              retrasos, sobrecostos y problemas legales. ¡Invertir tiempo en la
+              Antes de comenzar una obra, asegúrate de contar con un buen plan y
+              permisos al día. Una construcción bien planificada evita retrasos,
+              sobrecostos y problemas legales. ¡Invertir tiempo en la
               preparación es construir con inteligencia!
             </Text>
           </View>

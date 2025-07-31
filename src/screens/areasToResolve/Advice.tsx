@@ -12,11 +12,17 @@ import React, { useState } from "react";
 import { AdviceData } from "../../data/dataAreasToResolve/AdviceData";
 import AdviceCard from "../../components/cards/AdviceCard";
 import { ScrollView } from "react-native-gesture-handler";
+import { RootState } from "../../store/store";
+import { useSelector } from "react-redux";
 export default function Advice() {
   const [searchText, setSearchText] = useState("");
-  const filteredCards = AdviceData.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const AdviceArea = areas.find((area) => area.screen === "AdviceScreen");
+  const filteredCards = AdviceArea
+    ? AdviceArea.categories.filter((category) =>
+        category.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : [];
 
   return (
     <ScrollView>
@@ -55,7 +61,12 @@ export default function Advice() {
           </Text>
         ) : (
           filteredCards.map((item, index) => (
-            <AdviceCard key={index} imageUrl={item.img} title={item.title} />
+            <AdviceCard
+              key={index}
+              imageUrl={item.img}
+              title={item.title}
+              categoryId={item.id}
+            />
           ))
         )}
         <View style={styles.tipContainer}>

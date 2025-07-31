@@ -19,7 +19,7 @@ export default function NavBar() {
   const navigation = useNavigation();
   const { items } = useSelector((state: RootState) => state.cartSlice);
   const user = useSelector((state: RootState) => state.userSlice); // Obtener el usuario desde Redux
-  console.log("user from navbar", user);
+  // console.log("user from navbar", user);
   const [text, setText] = useState("");
 
   // Función para obtener solo la primera parte del nombre (antes del primer espacio)

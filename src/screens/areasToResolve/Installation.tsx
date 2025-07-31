@@ -11,25 +11,29 @@ import InstallationCard from "../../components/cards/InstallationCard";
 import { InstallationData } from "../../data/dataAreasToResolve/InstallationData";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export default function Installation() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
 
+  const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const InstallationArea = areas.find(
+    (area) => area.screen === "InstallationScreen"
+  );
+  const filteredCards = InstallationArea
+    ? InstallationArea.categories.filter((category) =>
+        category.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : [];
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const filteredCards = InstallationData.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
-
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      >
+      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.container}>
           <ImageBackground
             source={require("../../assets/img/instalacion.webp")}
@@ -61,9 +65,7 @@ export default function Installation() {
           />
 
           {filteredCards.length === 0 ? (
-            <Text
-              style={{ textAlign: "center", marginTop: 20, color: "#888" }}
-            >
+            <Text style={{ textAlign: "center", marginTop: 20, color: "#888" }}>
               No se encontraron servicios
             </Text>
           ) : (
@@ -72,6 +74,7 @@ export default function Installation() {
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
+                categoryId={item.id}
               />
             ))
           )}
@@ -79,11 +82,11 @@ export default function Installation() {
           <View style={styles.tipContainer}>
             <Text style={styles.tipTitle}>💡 Consejo KSA</Text>
             <Text style={styles.tipDescription}>
-              Antes de instalar un nuevo artefacto eléctrico o de gas,
-              asegúrate de que la red y el espacio estén preparados. Una
-              instalación correcta no solo mejora el rendimiento, también
-              previene riesgos y prolonga la vida útil del equipo. ¡Confía en
-              especialistas y hazlo bien desde el principio!
+              Antes de instalar un nuevo artefacto eléctrico o de gas, asegúrate
+              de que la red y el espacio estén preparados. Una instalación
+              correcta no solo mejora el rendimiento, también previene riesgos y
+              prolonga la vida útil del equipo. ¡Confía en especialistas y hazlo
+              bien desde el principio!
             </Text>
           </View>
         </View>

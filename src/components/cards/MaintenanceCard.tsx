@@ -1,8 +1,14 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
-export default function MaintenanceCard({ imageUrl, title }) {
+export default function MaintenanceCard({ imageUrl, title,categoryId }) {
+  
+    const navigation = useNavigation();
   const cleanedUrl = imageUrl?.trim();
+     const handleViewMore = () => {
+    navigation.navigate("MaintenanceServicesScreen", { categoryId });
+  };
   return (
     <View style={styles.card}>
       <Pressable style={styles.imageWrapper}>
@@ -19,7 +25,7 @@ export default function MaintenanceCard({ imageUrl, title }) {
         <Text style={styles.cardSubtitle}>
           Servicio especializado en {title}
         </Text>
-        <Pressable>
+    <Pressable onPress={handleViewMore}>
           <Text style={styles.link}>Ver más</Text>
         </Pressable>
       </View>

@@ -13,9 +13,10 @@ export default function ItemCart({
   onRemove,
   onDelete,
 }) {
+  console.log("image", image);
   return (
     <View style={styles.card}>
-      <Image source={image} style={styles.image} />
+      <Image source={{uri: image}} style={styles.image} />
 
       <View style={styles.details}>
         <Text style={styles.title}>{title}</Text>

@@ -1,8 +1,14 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
-export default function InstallationCard({ imageUrl, title }) {
+export default function InstallationCard({ imageUrl, title, categoryId}) {
+  
+    const navigation = useNavigation();
   const cleanedUrl = imageUrl?.trim();
+     const handleViewMore = () => {
+    navigation.navigate("InstallationServicesScreen", { categoryId });
+  };
   return (
     <View style={styles.card}>
          <Pressable style={styles.imageWrapper}>
@@ -19,9 +25,9 @@ export default function InstallationCard({ imageUrl, title }) {
            <Text style={styles.cardSubtitle}>
              Servicio especializado en {title}
            </Text>
-           <Pressable>
-             <Text style={styles.link}>Ver más</Text>
-           </Pressable>
+      <Pressable onPress={handleViewMore}>
+            <Text style={styles.link}>Ver más</Text>
+          </Pressable>
          </View>
        </View>
      );

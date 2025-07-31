@@ -11,25 +11,29 @@ import { MaintenanceData } from "../../data/dataAreasToResolve/MaintenanceData";
 import MaintenanceCard from "../../components/cards/MaintenanceCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export default function Maintenance() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
 
+  const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const MaintenanceArea = areas.find(
+    (area) => area.screen === "MaintenanceScreen"
+  );
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const filteredCards = MaintenanceData.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
-
+  const filteredCards = MaintenanceArea
+    ? MaintenanceArea.categories.filter((category) =>
+        category.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : [];
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      >
+      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.container}>
           <ImageBackground
             source={require("../../assets/img/mantencion.webp")}
@@ -60,9 +64,7 @@ export default function Maintenance() {
           />
 
           {filteredCards.length === 0 ? (
-            <Text
-              style={{ textAlign: "center", marginTop: 20, color: "#888" }}
-            >
+            <Text style={{ textAlign: "center", marginTop: 20, color: "#888" }}>
               No se encontraron servicios
             </Text>
           ) : (
@@ -71,6 +73,7 @@ export default function Maintenance() {
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
+                categoryId={item.id}
               />
             ))
           )}

@@ -62,11 +62,11 @@ export default function SignInScreen() {
         userCredential.user.uid
       );
       
-        console.log("userCredential uid", userCredential.user.uid,);
+        // console.log("userCredential uid", userCredential.user.uid,);
         
-        console.log("userCredential email", userCredential.user.email,);
+        // console.log("userCredential email", userCredential.user.email,);
       if (userDetails) {
-        console.log("userDetails ", userDetails);
+        // console.log("userDetails ", userDetails);
         // Actualizar Redux con los datos completos del usuario
         dispatch(
           setUser({

@@ -10,6 +10,7 @@ export default function AreaToRelsoveCard({
   navigateTo,
 }) {
   const navigation = useNavigation();
+  // console.log(imageUrl);
   const handlePress = () => {
     if (!navigateTo) return;
     navigation.navigate("ServicesStack", {

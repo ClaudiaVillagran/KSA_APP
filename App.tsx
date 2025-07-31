@@ -3,19 +3,21 @@ import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import IntroScreen from "./src/screens/IntroScreen";
 import MainScreen from "./src/screens/MainScreen";
 import { NavigationContainer } from "@react-navigation/native";
-import { Provider } from "react-redux";
-import { store } from "./src/store/store";
+import { Provider, useDispatch } from "react-redux";
+import { store, persistor } from "./src/store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function App() {
 
-
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <View style={styles.container}>
-          <MainScreen />
-        </View>
-      </NavigationContainer>
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer>
+          <View style={styles.container}>
+            <MainScreen />
+          </View>
+        </NavigationContainer>
+      </PersistGate>
     </Provider>
   );
 }
