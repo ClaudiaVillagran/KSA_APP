@@ -32,7 +32,8 @@
     "react-native-svg": "15.11.2",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "expo-document-picker": "~13.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

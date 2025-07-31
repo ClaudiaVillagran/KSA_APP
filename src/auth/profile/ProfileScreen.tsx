@@ -6,18 +6,19 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../config/firebase";
 import { clearUser } from "../../store/reducers/userSlice";
 import { useNavigation } from "@react-navigation/native";
+import { clearCart } from "../../store/reducers/cartSlice";
 
 export default function ProfileScreen() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.userSlice);
 
-  
   // console.log("user from profilescreen", user);
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
       await signOut(auth); // Cerrar sesión en Firebase
+      dispatch(clearCart()); // Limpiar el estado de Redux
       dispatch(clearUser()); // Limpiar el estado de Redux
       navigation.navigate("PrincipalTabs");
     } catch (error) {

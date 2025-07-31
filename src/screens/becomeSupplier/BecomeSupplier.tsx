@@ -1,12 +1,19 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import SupplierForm from "./SupplierForm";
 import { ScrollView } from "react-native-gesture-handler";
+import HowWork from "../howWorks/HowWork";
+import OurPlans from "./OurPlans";
 
 export default function BecomeSupplier() {
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
+  const scrollViewRef = useRef(null);
 
+  const scrollToPlansSection = () => {
+    // Desliza al componente de los planes
+    scrollViewRef.current?.scrollTo({ y: 1300, animated: true }); // Ajusta la posición 'y'
+  };
   // Precios según frecuencia de pago
   const prices = {
     monthly: 147276, // Mensual
@@ -45,7 +52,8 @@ export default function BecomeSupplier() {
   };
 
   return (
-    <ScrollView>
+    <ScrollView ref={scrollViewRef}>
+      <OurPlans scrollToPlansSection={scrollToPlansSection} />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           {/* Mostrar la imagen según el plan seleccionado */}
@@ -98,7 +106,7 @@ export default function BecomeSupplier() {
 
         {/* Componente del formulario de la empresa */}
         <SupplierForm
-          // onSubmit={(formData) => console.log("Formulario enviado:", formData)}
+        // onSubmit={(formData) => console.log("Formulario enviado:", formData)}
         />
       </View>
     </ScrollView>

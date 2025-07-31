@@ -4,14 +4,19 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Button,
   View,
+  Pressable,
+  Image,
 } from "react-native";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import ControllerTextInput from "../../components/inputs/ControllerTextInput";
 import { useForm } from "react-hook-form";
+
+import * as DocumentPicker from "expo-document-picker"; // Importar el paquete
+import { Controller } from "react-hook-form";
+import ControllerDocumentPicker from "../../components/inputs/ControllerDocumentPicker";
 
 const schema = yup
   .object({
@@ -65,6 +70,12 @@ const schema = yup
       .string()
       .required("Este campo es obligatorio")
       .matches(/^[0-9]+$/, "Sólo pueden ser números"),
+    Document: yup
+      .mixed()
+      .required("Debes adjuntar un documento")
+      .test("fileAttached", "El documento es obligatorio", (value) => {
+        return value && value.name; // name existe si hay archivo
+      }),
   })
   .required();
 const SupplierForm = ({}) => {
@@ -74,6 +85,40 @@ const SupplierForm = ({}) => {
   const saveOrder = (formData) => {
     // console.log(formData);
   };
+  const [document, setDocument] = useState(null);
+
+  const handleDocumentPick = async () => {
+    try {
+      // Abre el selector de documentos
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*", // Acepta todos los tipos de archivos
+      });
+      console.log(result.assets[0]);
+      if (result.assets) {
+        const file = result.assets ? result.assets[0] : null; // Asumimos que es el primer archivo
+        const allowedTypes = [
+          "application/pdf", // PDF
+          "application/msword", // Word .doc
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // Word .docx
+          "image/jpeg", // JPEG/JPG
+          "image/png", // PNG
+          "image/jpg", // JPG
+        ];
+        if (allowedTypes.includes(file.mimeType)) {
+          setDocument(file); // Guarda el archivo en el estado
+        } else {
+          alert(
+            "Tipo de archivo no permitido. Por favor, selecciona un archivo PDF, Word o una imagen (JPG, JPEG, PNG)."
+          );
+        }
+      } else {
+        alert("No se seleccionó ningún archivo");
+      }
+    } catch (error) {
+      alert("Hubo un error al seleccionar el archivo");
+    }
+  };
+
   return (
     <View style={styles.formContainer}>
       <Text style={styles.formTitle}>
@@ -176,10 +221,10 @@ const SupplierForm = ({}) => {
           required: "Este campo es obligatorio", // Añadir reglas de validación
         }}
       />
-      <Button
-        title="Adjuntar documento"
-        onPress={() => alert("Selecciona un archivo")}
-      />
+      {/* Botón para seleccionar documento */}
+      {/* Botón para seleccionar documento */}
+      {/* Botón para seleccionar documento */}
+      <ControllerDocumentPicker control={control} name="Document" />
       <TouchableOpacity
         style={styles.submitButton}
         onPress={handleSubmit(saveOrder)}
@@ -208,20 +253,54 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+    color: "#333",
   },
-  input: {
-    width: "100%",
-    height: 50,
-    paddingLeft: 10,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#777",
+  button: {
+    backgroundColor: "#007BFF", // Un color más moderno para botones
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 8,
-    backgroundColor: "#fff",
+    marginTop: 20,
+    alignItems: "center",
+  },
+  documentButton: {
+    backgroundColor: "#f5f5f5", // Color de fondo gris suave
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: "#ddd", // Borde suave para el botón
+    alignItems: "center",
+  },
+  documentButtonText: {
+    color: "#007BFF", // Color del texto (azul similar al de otros botones)
+    fontWeight: "600",
     fontSize: 16,
   },
+  documentPreview: {
+    marginTop: 20,
+    backgroundColor: "#f0f4ff",
+    padding: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cce7ff",
+    alignItems: "center",
+  },
+  documentText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 10,
+  },
+  documentImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginTop: 10,
+    resizeMode: "contain",
+  },
   submitButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#4CAF50", // Verde para el botón de envío
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
