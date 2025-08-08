@@ -1,35 +1,64 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface BillingInfo {
+  razonSocial?: string | null;
+  rut?: string | null;
+  direccion?: string | null;
+}
+
 interface UserState {
   displayName: string | null;
   email: string | null;
   uid: string | null;
+  // Nuevos campos
+  isBusiness: boolean;
+  businessPlan: string | null; // 'monthly' | 'semiannual' | 'annual' | 'flexible' | null
+  billing: BillingInfo | null;
 }
 
 const initialState: UserState = {
-  displayName: null, // Cambiar a null en lugar de ''
-  email: null,       // Cambiar a null en lugar de ''
-  uid: null,         // Cambiar a null en lugar de ''
+  displayName: null,
+  email: null,
+  uid: null,
+  isBusiness: false,
+  businessPlan: null,
+  billing: null,
 };
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<UserState>) => {
-      console.log("payloadfrom slice", action.payload);
-      state.displayName = action.payload.displayName;
-      state.email = action.payload.email;
-      state.uid = action.payload.uid;
+    // Permite payloads parciales y mergea sobre el estado actual
+    setUser: (state, action: PayloadAction<Partial<UserState>>) => {
+      // console.log("payloadfrom slice", action.payload);
+      Object.assign(state, action.payload);
     },
+
     clearUser: (state) => {
-      state.displayName = null; // Establecer a null en lugar de cadena vacía
+      state.displayName = null;
       state.email = null;
       state.uid = null;
+      state.isBusiness = false;
+      state.businessPlan = null;
+      state.billing = null;
+    },
+
+    // (Opcional) actualizar solo status business
+    updateBusinessStatus: (
+      state,
+      action: PayloadAction<{ isBusiness: boolean; businessPlan?: string | null; billing?: BillingInfo | null }>
+    ) => {
+      state.isBusiness = action.payload.isBusiness;
+      if (typeof action.payload.businessPlan !== 'undefined') {
+        state.businessPlan = action.payload.businessPlan;
+      }
+      if (typeof action.payload.billing !== 'undefined') {
+        state.billing = action.payload.billing;
+      }
     },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
-
+export const { setUser, clearUser, updateBusinessStatus } = userSlice.actions;
 export default userSlice.reducer;

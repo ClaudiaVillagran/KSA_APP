@@ -9,6 +9,22 @@ import OurPlans from "./OurPlans";
 export default function BecomeSupplier() {
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
   const scrollViewRef = useRef(null);
+  const formRef = useRef(null);
+  const handlePlanSelection = (planKey: string) => {
+    setPaymentFrequency(planKey); // Cambia el plan (monthly, semiannual, annual, flexible)
+    scrollToFormSection(); // Desplaza al formulario
+  };
+  const scrollToFormSection = () => {
+    formRef.current?.measureLayout(
+      scrollViewRef.current,
+      (x, y) => {
+        scrollViewRef.current?.scrollTo({ y, animated: true });
+      },
+      (error) => {
+        console.warn("Error al medir el formulario:", error);
+      }
+    );
+  };
 
   const scrollToPlansSection = () => {
     // Desliza al componente de los planes
@@ -19,6 +35,8 @@ export default function BecomeSupplier() {
     monthly: 147276, // Mensual
     semiannual: 123960, // Semestral
     annual: 112303, // Anual
+
+    flexible: 0, // Plan Flexible es gratuito
   };
 
   // Planes correspondientes a la frecuencia de pago
@@ -26,6 +44,8 @@ export default function BecomeSupplier() {
     monthly: "Básico", // Mensual → Plan Básico
     semiannual: "Pro", // Semestral → Plan Pro
     annual: "Premium", // Anual → Plan Premium
+
+    flexible: "Flexible",
   };
 
   // Función para obtener el precio y el plan adecuado
@@ -53,7 +73,10 @@ export default function BecomeSupplier() {
 
   return (
     <ScrollView ref={scrollViewRef}>
-      <OurPlans scrollToPlansSection={scrollToPlansSection} />
+      <OurPlans
+        scrollToPlansSection={scrollToPlansSection}
+        onPlanSelect={handlePlanSelection}
+      />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           {/* Mostrar la imagen según el plan seleccionado */}
@@ -85,29 +108,41 @@ export default function BecomeSupplier() {
             <Picker.Item label="Anual" value="annual" />
           </Picker>
         </View>
+        <View ref={formRef}>
+          <View style={styles.planDetailsContainer}>
+            <Text style={styles.selectionText}>
+              Has seleccionado el plan: {plan}{" "}
+              {paymentFrequency !== "flexible" && (
+                <>
+                  {" "}
+                  (precio{" "}
+                  {paymentFrequency === "monthly"
+                    ? "mensual"
+                    : paymentFrequency === "semiannual"
+                    ? "semestral"
+                    : "anual"}
+                  )
+                </>
+              )}
+            </Text>
 
-        <View style={styles.planDetailsContainer}>
-          <Text style={styles.selectionText}>
-            Has seleccionado el plan: {plan} (precio{" "}
-            {paymentFrequency === "monthly"
-              ? "mensual"
-              : paymentFrequency === "semiannual"
-              ? "semestral"
-              : "anual"}
-            )
-          </Text>
+            <Text style={styles.priceText}>
+              Precio:{" "}
+              {paymentFrequency === "flexible"
+                ? "Sin costo mensual"
+                : `$${price} CLP`}
+            </Text>
 
-          <Text style={styles.priceText}>Precio: ${price} CLP</Text>
-
-          <Text style={styles.noteText}>
-            El precio corresponde a la frecuencia seleccionada.
-          </Text>
+            <Text style={styles.noteText}>
+              El precio corresponde a la frecuencia seleccionada.
+            </Text>
+          </View>
         </View>
-
         {/* Componente del formulario de la empresa */}
-        <SupplierForm
+        {/* <SupplierForm
         // onSubmit={(formData) => console.log("Formulario enviado:", formData)}
-        />
+        /> */}
+          <SupplierForm selectedPlan={paymentFrequency} />
       </View>
     </ScrollView>
   );

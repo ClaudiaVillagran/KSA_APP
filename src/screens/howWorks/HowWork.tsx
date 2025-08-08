@@ -1,10 +1,9 @@
 import {
-  Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  Pressable,
 } from "react-native";
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -12,9 +11,11 @@ import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Entypo from "@expo/vector-icons/Entypo";
 import AntDesign from "@expo/vector-icons/AntDesign";
-export default function HowWork() {
+
+export default function HowWork({ scrollToPlansSection }: { scrollToPlansSection?: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* CLIENTES */}
       <Text style={styles.title}>¿Cómo funciona KSA?</Text>
       <Text style={styles.description}>
         En KSA te conectamos con los mejores proveedores para el cuidado,
@@ -22,7 +23,7 @@ export default function HowWork() {
       </Text>
 
       <View style={styles.stepContainer}>
-      <Feather name="search" size={40} color="#007BFF" />
+        <Feather name="search" size={40} color="#007BFF" />
         <Text style={styles.stepTitle}>Paso 1</Text>
         <Text style={styles.stepDescription}>
           Explora las categorías y encuentra el servicio que necesitas:
@@ -48,13 +49,14 @@ export default function HowWork() {
       </View>
 
       <View style={styles.stepContainer}>
-       <FontAwesome name="handshake-o" size={40} color="#007BFF" />
+        <FontAwesome name="handshake-o" size={40} color="#007BFF" />
         <Text style={styles.stepTitle}>Paso 4</Text>
         <Text style={styles.stepDescription}>
           Nuestro equipo o proveedor se encarga de todo, ¡Tú solo relájate!
         </Text>
       </View>
 
+      {/* BENEFICIOS CLIENTES */}
       <Text style={styles.subtitle}>¿Por qué elegir KSA?</Text>
 
       <View style={styles.featureContainer}>
@@ -76,6 +78,72 @@ export default function HowWork() {
         <Entypo name="check" size={28} color="#007BFF" />
         <Text style={styles.featureText}>Garantía en servicios</Text>
       </View>
+
+      {/* PROVEEDORES */}
+      <Text style={styles.subtitle}>¿Eres proveedor de servicios?</Text>
+      <Text style={styles.description}>
+        En KSA puedes ofrecer tus servicios a miles de personas que buscan soluciones para su hogar. ¡Es muy fácil comenzar!
+      </Text>
+
+      <View style={styles.stepContainer}>
+        <AntDesign name="adduser" size={40} color="#007BFF" />
+        <Text style={styles.stepTitle}>Paso 1</Text>
+        <Text style={styles.stepDescription}>
+          Regístrate como proveedor completando el formulario con tu información básica.
+        </Text>
+      </View>
+
+      <View style={styles.stepContainer}>
+        <Feather name="edit" size={40} color="#007BFF" />
+        <Text style={styles.stepTitle}>Paso 2</Text>
+        <Text style={styles.stepDescription}>
+          Elige el plan que mejor se adapte a tu negocio: mensual, semestral, anual o flexible sin costo inicial.
+        </Text>
+      </View>
+
+      <View style={styles.stepContainer}>
+        <FontAwesome6 name="eye" size={40} color="#007BFF" />
+        <Text style={styles.stepTitle}>Paso 3</Text>
+        <Text style={styles.stepDescription}>
+          Tu perfil aparecerá en KSA y será visible para miles de personas en tu ciudad.
+        </Text>
+      </View>
+
+      <View style={styles.stepContainer}>
+        <Feather name="dollar-sign" size={40} color="#007BFF" />
+        <Text style={styles.stepTitle}>Paso 4</Text>
+        <Text style={styles.stepDescription}>
+          Recibe solicitudes, gestiona tus servicios desde tu cuenta y comienza a generar ingresos.
+        </Text>
+      </View>
+
+      <Text style={styles.subtitle}>Beneficios para proveedores</Text>
+
+      <View style={styles.featureContainer}>
+        <Entypo name="bar-graph" size={28} color="#007BFF" />
+        <Text style={styles.featureText}>Visibilidad en 16 ciudades</Text>
+      </View>
+
+      <View style={styles.featureContainer}>
+        <FontAwesome name="star-o" size={28} color="#007BFF" />
+        <Text style={styles.featureText}>Perfil destacado y reseñas</Text>
+      </View>
+
+      <View style={styles.featureContainer}>
+        <Feather name="users" size={28} color="#007BFF" />
+        <Text style={styles.featureText}>Acceso a la comunidad KSA</Text>
+      </View>
+
+      <View style={styles.featureContainer}>
+        <AntDesign name="like2" size={28} color="#007BFF" />
+        <Text style={styles.featureText}>Publicidad dirigida y analítica</Text>
+      </View>
+
+      {scrollToPlansSection && (
+        <Pressable style={styles.ctaButton} onPress={scrollToPlansSection}>
+          <Text style={styles.ctaButtonText}>Ver planes</Text>
+        </Pressable>
+      )}
     </ScrollView>
   );
 }
@@ -91,7 +159,6 @@ const styles = StyleSheet.create({
     color: "#222",
     textAlign: "center",
     marginBottom: 20,
-    fontFamily: "Arial",
   },
   description: {
     fontSize: 16,
@@ -99,7 +166,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
     lineHeight: 24,
-    fontFamily: "Arial",
+  },
+  subtitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#222",
+    textAlign: "center",
+    marginTop: 40,
+    marginBottom: 15,
   },
   stepContainer: {
     marginBottom: 25,
@@ -124,16 +198,7 @@ const styles = StyleSheet.create({
     color: "#555",
     textAlign: "center",
     marginTop: 10,
-    paddingHorizontal: 40,
-  },
-  subtitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#222",
-    textAlign: "center",
-    marginTop: 40,
-    marginBottom: 15,
-    fontFamily: "Arial",
+    paddingHorizontal: 20,
   },
   featureContainer: {
     flexDirection: "row",
@@ -150,6 +215,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
     color: "#333",
-    fontFamily: "Arial",
+  },
+  ctaButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 24,
+    alignSelf: "center",
+  },
+  ctaButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+    textTransform: "uppercase",
   },
 });

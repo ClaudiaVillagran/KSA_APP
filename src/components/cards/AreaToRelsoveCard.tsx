@@ -17,6 +17,7 @@ export default function AreaToRelsoveCard({
       screen: navigateTo,
     });
   };
+  
 
   return (
     <View style={{ alignItems: "center" }}>

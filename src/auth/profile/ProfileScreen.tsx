@@ -40,6 +40,21 @@ export default function ProfileScreen() {
       ) : (
         <Text>No hay usuario autenticado.</Text>
       )}
+      {user?.isBusiness && (
+        <View
+          style={{
+            backgroundColor: "#10B981",
+            paddingVertical: 4,
+            paddingHorizontal: 10,
+            borderRadius: 999,
+            marginBottom: 10,
+          }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "700" }}>
+            BUSINESS {user?.businessPlan ? `• ${user.businessPlan}` : ""}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
