@@ -32,11 +32,11 @@ export default function BecomeSupplier() {
   };
   // Precios según frecuencia de pago
   const prices = {
-    monthly: 147276, // Mensual
-    semiannual: 123960, // Semestral
-    annual: 112303, // Anual
+    monthly: 147276,
+    semiannual: 123960,
+    annual: 112303,
 
-    flexible: 0, // Plan Flexible es gratuito
+    flexible: 0,
   };
 
   // Planes correspondientes a la frecuencia de pago

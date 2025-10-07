@@ -1,4 +1,4 @@
-// CheckoutScreen.tsx (mínimo)
+
 import React from "react";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -26,7 +26,6 @@ export default function CheckoutScreen() {
   } = route.params || {};
 
   const pay = async () => {
-    // Aquí iría tu integración real de pago
     // Si el pago es OK:
     try {
       const uid = auth.currentUser?.uid;

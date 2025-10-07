@@ -17,7 +17,7 @@ export default function AppTextInput({
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
-        style={[styles.input, style]} // Estilo de error se combina con el estilo base
+        style={[styles.input, style]} 
       />
     </View>
   );

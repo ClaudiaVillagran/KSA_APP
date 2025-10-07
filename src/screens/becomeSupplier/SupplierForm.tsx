@@ -13,7 +13,6 @@ type SupplierFormProps = {
   selectedPlan: "monthly" | "semiannual" | "annual" | "flexible";
 };
 
-// 🔒 Schema con llaves en minúsculas, igual que los "name" de los inputs
 const schema = yup
   .object({
     rut: yup
@@ -91,13 +90,13 @@ const SupplierForm = ({ selectedPlan }: SupplierFormProps) => {
     // Payload que reenviaremos por las pantallas
     const payload = {
       supplierForm: formData,
-      selectedPlan, // ⬅️ muy importante
+      selectedPlan,
     };
 
     if (!user) {
       // No logueado → AuthFlow con redirect
       navigation.navigate("AuthStack", {
-        screen: "AuthFlow", // 👈 nombre de la pantalla dentro del AuthStack
+        screen: "AuthFlow",
         params: {
           redirectTo: "BillingDetails",
           redirectParams: { supplierForm: formData, selectedPlan },
@@ -111,7 +110,6 @@ const SupplierForm = ({ selectedPlan }: SupplierFormProps) => {
   };
 
   const onInvalid = (errs: any) => {
-    // Te muestra el primer error para depurar rápido
     const firstKey = Object.keys(errs)[0];
     const msg = errs?.[firstKey]?.message || "Revisa los campos del formulario";
     alert(msg);

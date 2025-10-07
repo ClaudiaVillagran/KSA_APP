@@ -17,8 +17,7 @@ const ControllerTextInput = ({
       name={name}
       rules={rules}
       render={({ field: { onChange, value }, fieldState: { error } }) => {
-        // Hacer console.log aquí, en el lugar adecuado
-        // console.log("error",error);
+    
 
         return (
           <View style={styles.inputContainer}>
