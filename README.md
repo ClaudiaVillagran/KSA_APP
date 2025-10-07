@@ -1,21 +1,21 @@
-#README KSAPP — React Native + TypeScript + Firebase
+# README KSAPP — React Native + TypeScript + Firebase
 
 Proyecto base en React Native + TypeScript con integración de Firebase usando un archivo de constantes centralizado.
 
-##Requisitos
+## Requisitos
 
 Node.js 18+ y npm
 Expo CLI: npm i -g expo
 (Opcional para nativo) Java 17, Android Studio / SDK, Xcode (macOS)
 Dispositivo físico o emulador/simulador para pruebas
 
-##Crea el archivo de constantes:
+## Crea el archivo de constantes:
 
 ```bash
 src/constants/FirebaseConstants.ts
 ```
 
-##Contenido
+## Contenido
 
 ```bash
 export const FirebaseConstants = {
@@ -28,13 +28,13 @@ export const FirebaseConstants = {
 };
 ```
 
-##Instala dependencias:
+## Instala dependencias:
 
 ```bash
 npm install
 ```
 
-##Inicia el proyecto:
+## Inicia el proyecto:
 
 ```bash
 npm start
@@ -42,7 +42,7 @@ npm start
 ##Con Expo: elige “w” (Web), “a” (Android) o “i” (iOS).
 ```
 
-##Configuración de Firebase
+## Configuración de Firebase
 
 Ve a Firebase Console → crea un Proyecto.
 
