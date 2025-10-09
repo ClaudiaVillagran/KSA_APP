@@ -1,16 +1,20 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+// src/config/firebase.ts
+import { Platform } from "react-native";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+  setPersistence,
+  browserLocalPersistence,
+  type Auth,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FirebaseConstants } from "../constants/FirebaseConstants";
 
-import { getStorage } from "firebase/storage"; // Importar Storage
-
-import { FirebaseConstants } from "../constants/FirebaseConstants"; // Importar constantes
-
-// Optionally import the services that you want to use
-// import {...} from 'firebase/database';
-// import {...} from 'firebase/functions';
-
-// Initialize Firebase
+// Config
 const firebaseConfig = {
   apiKey: FirebaseConstants.API_KEY,
   authDomain: FirebaseConstants.AUTH_DOMAIN,
@@ -20,13 +24,29 @@ const firebaseConfig = {
   appId: FirebaseConstants.APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Asegura singleton del app
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// For more information on how to access Firebase in your project,
-// see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase
-const auth = getAuth(app);
+// Auth con persistencia correcta por plataforma
+let auth: Auth;
+
+if (Platform.OS === "web") {
+  auth = getAuth(app);
+  // En web, usa localStorage
+  setPersistence(auth, browserLocalPersistence).catch(() => {});
+} else {
+  // En iOS/Android (Expo), usa AsyncStorage
+  try {
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch {
+    // Si ya fue inicializado en otro punto, reutiliza
+    auth = getAuth(app);
+  }
+}
+
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-const storage = getStorage(app); // Para Firebase Storage
-
-export { auth, db, storage };
+export { app, auth, db, storage };

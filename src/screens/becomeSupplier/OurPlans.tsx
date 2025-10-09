@@ -9,7 +9,7 @@ import {
 import React from "react";
 import LogoKsa from "../../assets/svg/LogoKsa";
 import PlanTable from "../howWorks/PlanTable";
-import Icon from "react-native-vector-icons/Feather";
+import { Feather as Icon } from "@expo/vector-icons";
 
 export default function OurPlans({ scrollToPlansSection, onPlanSelect }) {
   const planImages: { [key: string]: any } = {

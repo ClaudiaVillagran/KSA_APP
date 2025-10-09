@@ -10,6 +10,7 @@ import ProfileScreen from "../auth/profile/ProfileScreen";
 import { useDispatch } from "react-redux";
 import { setAreas } from "../store/reducers/areaSlice";
 import { fetchArea } from "../data/firestoreData/AreasFromFirestore";
+import WelcomeScreen from "./welcomeScreen/WelcomeScreen";
 
 const Stack = createStackNavigator();
 export default function MainScreen() {
@@ -44,8 +45,9 @@ export default function MainScreen() {
 
   return (
     <View style={styles.containerMain}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Welcome">
         <Stack.Screen name="PrincipalTabs" component={PrincipalTabs} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="AuthStack" component={AuthStack} />
 
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />

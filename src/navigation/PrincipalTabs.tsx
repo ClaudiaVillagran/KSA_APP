@@ -1,6 +1,7 @@
 // PrincipalTabs.tsx
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { RouteProp, useRoute } from "@react-navigation/native";
 import InicioComponent from "../components/pages/InicioComponent";
 import BecomeSupplier from "../screens/becomeSupplier/BecomeSupplier";
 import HowWork from "../screens/howWorks/HowWork";
@@ -9,30 +10,39 @@ import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-const Tab = createBottomTabNavigator();
+type TabsParamList = {
+  Home: undefined;
+  ComoFunciona: undefined;
+  HazteProveedor: undefined;
+};
 
-export default function PrincipalTabs() {
+type RootRoute = RouteProp<{ PrincipalTabs: { initialTab?: keyof TabsParamList } }, "PrincipalTabs">;
+
+const Tab = createBottomTabNavigator<TabsParamList>();
+
+export default function PrincipalTabs({ route }: { route?: RootRoute["params"] }) {
+  // Si este componente lo recibe sin tipado de react-navigation, también puedes hacer:
+  // const route = useRoute<any>();
+  const r = useRoute<any>();
+  const initialTab: keyof TabsParamList = r?.params?.initialTab ?? "Home";
+
   return (
     <>
       <NavBar />
       <Tab.Navigator
+        initialRouteName={initialTab}
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: "#0074D9",
           tabBarInactiveTintColor: "#555",
-          tabBarLabelStyle: {
-            marginTop: 4,
-            fontSize: 13,
-          },
+          tabBarLabelStyle: { marginTop: 4, fontSize: 13 },
         }}
       >
         <Tab.Screen
           name="Home"
           component={InicioComponent}
           options={{
-            tabBarIcon: ({ color }) => (
-              <Entypo name="home" size={24} color={color} />
-            ),
+            tabBarIcon: ({ color }) => <Entypo name="home" size={24} color={color} />,
             title: "Inicio",
           }}
         />
@@ -40,9 +50,7 @@ export default function PrincipalTabs() {
           name="ComoFunciona"
           component={HowWork}
           options={{
-            tabBarIcon: ({ color }) => (
-              <FontAwesome5 name="question" size={24} color={color} />
-            ),
+            tabBarIcon: ({ color }) => <FontAwesome5 name="question" size={24} color={color} />,
             title: "Como funciona",
           }}
         />
@@ -50,15 +58,10 @@ export default function PrincipalTabs() {
           name="HazteProveedor"
           component={BecomeSupplier}
           options={{
-            tabBarIcon: ({ color }) => (
-              <FontAwesome6 name="handshake-simple" size={24} color={color} />
-            ),
+            tabBarIcon: ({ color }) => <FontAwesome6 name="handshake-simple" size={24} color={color} />,
             title: "Hazte proveedor",
           }}
         />
-
-
-        
       </Tab.Navigator>
     </>
   );
