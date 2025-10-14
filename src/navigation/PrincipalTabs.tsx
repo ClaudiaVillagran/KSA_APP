@@ -21,8 +21,6 @@ type RootRoute = RouteProp<{ PrincipalTabs: { initialTab?: keyof TabsParamList }
 const Tab = createBottomTabNavigator<TabsParamList>();
 
 export default function PrincipalTabs({ route }: { route?: RootRoute["params"] }) {
-  // Si este componente lo recibe sin tipado de react-navigation, también puedes hacer:
-  // const route = useRoute<any>();
   const r = useRoute<any>();
   const initialTab: keyof TabsParamList = r?.params?.initialTab ?? "Home";
 
@@ -32,10 +30,12 @@ export default function PrincipalTabs({ route }: { route?: RootRoute["params"] }
       <Tab.Navigator
         initialRouteName={initialTab}
         screenOptions={{
+          
           headerShown: false,
           tabBarActiveTintColor: "#0074D9",
           tabBarInactiveTintColor: "#555",
           tabBarLabelStyle: { marginTop: 4, fontSize: 13 },
+          
         }}
       >
         <Tab.Screen

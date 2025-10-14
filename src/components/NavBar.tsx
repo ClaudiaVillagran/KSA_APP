@@ -48,6 +48,22 @@ export default function NavBar() {
                   },
                 ]}
               >
+                {/* {user?.isBusiness && (
+                  <Pressable
+                    onPress={() =>
+                      navigation.navigate("BusinessStack", {
+                        screen: "BusinessDashboard",
+                      })
+                    }
+                    style={({ pressed }) => [
+                      { opacity: pressed ? 0.6 : 1, marginLeft: 12 },
+                    ]}
+                  >
+                    <Text style={{ fontWeight: "700", color: "#10B981" }}>
+                      Panel Proveedor
+                    </Text>
+                  </Pressable>
+                )} */}
                 <View style={styles.profileContainer}>
                   <Ionicons
                     name="person-circle"
@@ -56,7 +72,7 @@ export default function NavBar() {
                     style={styles.profileIcon}
                   />
                   <Text style={styles.loginText}>
-                    ¡Hola, {getFirstName(user.displayName)}!
+                    Mi perfil
                   </Text>
                 </View>
               </Pressable>
@@ -67,8 +83,9 @@ export default function NavBar() {
           ) : (
             <>
               <Pressable
-                onPress={() =>
-                  navigation.navigate("AuthStack", { screen: "SignInScreen" }) // Redirigir a AuthStack si el usuario no está autenticado
+                onPress={
+                  () =>
+                    navigation.navigate("AuthStack", { screen: "SignInScreen" }) // Redirigir a AuthStack si el usuario no está autenticado
                 }
                 style={({ pressed }) => [
                   {

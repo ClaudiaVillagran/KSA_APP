@@ -3,13 +3,17 @@ import cartSlice from "./reducers/cartSlice";
 import productSlice from "./reducers/productSlice";
 import userSlice from "./reducers/userSlice";
 import areaSlice from "./reducers/areaSlice";
+import companySlice from "./reducers/companySlice";
+
+import servicesSlice  from "./reducers/servicesSlice";
 import storage from "@react-native-async-storage/async-storage";
 import { persistStore, persistReducer } from "redux-persist";
 
 const persistConfig = {
-  key: "root", // Nombre de la clave que usará el almacenamiento persistente
-  storage, // Usamos AsyncStorage
-  whitelist: ["userSlice", "cartSlice", "productSlice"], // Aquí agregamos los slices que queremos persistir
+  key: "root",
+  storage,
+  // Agrega companySlice si quieres que persista entre sesiones
+  whitelist: ["userSlice", "cartSlice", "productSlice", "companySlice"], // ← agregué companySlice
 };
 
 const rootReducer = combineReducers({
@@ -17,21 +21,19 @@ const rootReducer = combineReducers({
   productSlice,
   userSlice,
   areaSlice,
+  companySlice,
+  servicesSlice ,
 });
 
-// Creamos el reducer persistido
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer, // Usamos el reducer persistido
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false, // Esto evita las alertas por objetos no serializables
-    }),
+    getDefaultMiddleware({ serializableCheck: false }),
   devTools: true,
 });
 
-export const persistor = persistStore(store); // Esto manejará la persistencia
-
-// Exportar el tipo de estado de la tienda
+export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

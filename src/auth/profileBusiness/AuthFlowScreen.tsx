@@ -21,14 +21,26 @@ import LogoKsa from "../../assets/svg/LogoKsa";
 
 // Validaciones
 const loginSchema = yup.object({
-  email: yup.string().required("El correo electrónico es obligatorio").email("Correo inválido"),
+  email: yup
+    .string()
+    .required("El correo electrónico es obligatorio")
+    .email("Correo inválido"),
   password: yup.string().required("La contraseña es obligatoria"),
 });
 
 const registerSchema = yup.object({
-  username: yup.string().required("El nombre es obligatorio").min(3, "El nombre debe tener al menos 3 caracteres"),
-  email: yup.string().required("El correo electrónico es obligatorio").email("Correo inválido"),
-  password: yup.string().required("La contraseña es obligatoria").min(8, "La contraseña debe tener al menos 8 caracteres"),
+  username: yup
+    .string()
+    .required("El nombre es obligatorio")
+    .min(3, "El nombre debe tener al menos 3 caracteres"),
+  email: yup
+    .string()
+    .required("El correo electrónico es obligatorio")
+    .email("Correo inválido"),
+  password: yup
+    .string()
+    .required("La contraseña es obligatoria")
+    .min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
 export default function AuthFlowScreen() {
@@ -49,9 +61,11 @@ export default function AuthFlowScreen() {
     resolver: yupResolver(loginSchema),
   });
 
-  const { control: registerControl, handleSubmit: handleRegisterSubmit } = useForm({
-    resolver: yupResolver(registerSchema),
-  });
+  const { control: registerControl, handleSubmit: handleRegisterSubmit } =
+    useForm({
+      resolver: yupResolver(registerSchema),
+      defaultValues: { username: "", email: "", password: "" },
+    });
 
   // Navegación después de auth
   const goNext = () => {
@@ -60,7 +74,10 @@ export default function AuthFlowScreen() {
   };
 
   // Cargar usuario a Redux
-  const saveUserInRedux = async (uid: string, email: string | null | undefined) => {
+  const saveUserInRedux = async (
+    uid: string,
+    email: string | null | undefined
+  ) => {
     const safeEmail = email || "";
     try {
       const snap = await getDoc(doc(db, "users", uid));
@@ -93,7 +110,11 @@ export default function AuthFlowScreen() {
   // Handlers
   const onLogin = async (data: any) => {
     try {
-      const cred = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
       await saveUserInRedux(cred.user.uid, cred.user.email);
       goNext();
     } catch (e: any) {
@@ -107,8 +128,13 @@ export default function AuthFlowScreen() {
   };
 
   const onRegister = async (data: any) => {
+    console.log(data);
     try {
-      const cred = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const cred = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
       await updateProfile(cred.user, { displayName: data.username });
 
       // crear/mergear doc en Firestore
@@ -162,14 +188,25 @@ export default function AuthFlowScreen() {
               placeholder="Contraseña *"
               secureTextEntry={!showLoginPassword}
             />
-            <Pressable onPress={() => setShowLoginPassword((p) => !p)} style={styles.eyeIconContainer}>
-              <Ionicons name={showLoginPassword ? "eye-off" : "eye"} size={24} color="#2563EB" />
+            <Pressable
+              onPress={() => setShowLoginPassword((p) => !p)}
+              style={styles.eyeIconContainer}
+            >
+              <Ionicons
+                name={showLoginPassword ? "eye-off" : "eye"}
+                size={24}
+                color="#2563EB"
+              />
             </Pressable>
           </View>
         </View>
       ) : (
         <View style={styles.form}>
-          <ControllerTextInput control={registerControl} name="username" placeholder="Nombre completo *" />
+          <ControllerTextInput
+            control={registerControl}
+            name="username"
+            placeholder="Nombre completo *"
+          />
           <ControllerTextInput
             control={registerControl}
             name="email"
@@ -183,8 +220,15 @@ export default function AuthFlowScreen() {
               placeholder="Contraseña *"
               secureTextEntry={!showRegisterPassword}
             />
-            <Pressable onPress={() => setShowRegisterPassword((p) => !p)} style={styles.eyeIconContainer}>
-              <Ionicons name={showRegisterPassword ? "eye-off" : "eye"} size={24} color="#2563EB" />
+            <Pressable
+              onPress={() => setShowRegisterPassword((p) => !p)}
+              style={styles.eyeIconContainer}
+            >
+              <Ionicons
+                name={showRegisterPassword ? "eye-off" : "eye"}
+                size={24}
+                color="#2563EB"
+              />
             </Pressable>
           </View>
         </View>
@@ -194,21 +238,33 @@ export default function AuthFlowScreen() {
       <View style={styles.buttonsWrap}>
         {mode === "login" ? (
           <>
-            <Pressable style={styles.loginButton} onPress={handleLoginSubmit(onLogin)}>
+            <Pressable
+              style={styles.loginButton}
+              onPress={handleLoginSubmit(onLogin)}
+            >
               <Text style={styles.loginButtonText}>Iniciar sesión</Text>
             </Pressable>
 
-            <Pressable style={styles.registerButton} onPress={() => setMode("register")}>
+            <Pressable
+              style={styles.registerButton}
+              onPress={() => setMode("register")}
+            >
               <Text style={styles.registerButtonText}>Registrarse</Text>
             </Pressable>
           </>
         ) : (
           <>
-            <Pressable style={styles.loginButton} onPress={handleRegisterSubmit(onRegister)}>
+            <Pressable
+              style={styles.loginButton}
+              onPress={handleRegisterSubmit(onRegister)}
+            >
               <Text style={styles.loginButtonText}>Registrarse</Text>
             </Pressable>
 
-            <Pressable style={styles.registerButton} onPress={() => setMode("login")}>
+            <Pressable
+              style={styles.registerButton}
+              onPress={() => setMode("login")}
+            >
               <Text style={styles.registerButtonText}>Iniciar sesión</Text>
             </Pressable>
           </>

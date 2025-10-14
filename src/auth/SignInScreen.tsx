@@ -50,6 +50,7 @@ export default function SignInScreen() {
   };
 
   const saveLog = async (data) => {
+    console.log(data);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,

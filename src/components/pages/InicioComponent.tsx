@@ -10,6 +10,7 @@ import { getProductsData } from "../../config/dataServices";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { setProducts } from "../../store/reducers/productSlice";
+import FeaturedCompanies from "../../screens/featured/FeaturedCompanies";
 export default function InicioComponent() {
   const { products } = useSelector((state: RootState) => state.productSlice);
   const user = useSelector((state: RootState) => state.userSlice); // Obtenemos el objeto user desde el store
@@ -30,8 +31,10 @@ export default function InicioComponent() {
   return (
     <ScrollView style={styles.containerInicio}>
       <HeroSection />
-      <OurProducts />
+      
       <AreaToResolve />
+      <OurProducts />
+      <FeaturedCompanies/>
       <View
         style={{ justifyContent: "center", alignItems: "center", padding: 20 }}
       >
@@ -56,7 +59,7 @@ export default function InicioComponent() {
 
 const styles = StyleSheet.create({
   containerInicio: {
-    minHeight: 700,
+    height:"100%",
   },
   title: {
     fontSize: 14,

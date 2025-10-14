@@ -27,7 +27,7 @@ export default function AvailableProductsCard({
           {title}
         </Text>
         <Text style={styles.author}>Proveedor: {author}</Text>
-        <Text style={styles.price}>${price.toLocaleString()}</Text>
+        {/* <Text style={styles.price}>${price.toLocaleString()}</Text> */}
       </View>
     </View>
   );
