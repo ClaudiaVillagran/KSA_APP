@@ -2,12 +2,12 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-export default function MaintenanceCard({ imageUrl, title,categoryId }) {
+export default function MaintenanceCard({ imageUrl, title,categoryId,areaId }) {
   
     const navigation = useNavigation();
   const cleanedUrl = imageUrl?.trim();
      const handleViewMore = () => {
-    navigation.navigate("MaintenanceServicesScreen", { categoryId });
+    navigation.navigate("MaintenanceServicesScreen", { areaId, categoryId, title });
   };
   return (
     <View style={styles.card}>

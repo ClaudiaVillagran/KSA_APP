@@ -11,13 +11,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { setProducts } from "../../store/reducers/productSlice";
 import FeaturedCompanies from "../../screens/featured/FeaturedCompanies";
+import FeaturedServices from "../../screens/featured/FeaturedServices";
 export default function InicioComponent() {
   const { products } = useSelector((state: RootState) => state.productSlice);
   const user = useSelector((state: RootState) => state.userSlice); // Obtenemos el objeto user desde el store
   
   if (!user) {
-    console.log("no hay usuario logeado");
+    // console.log("no hay usuario logeado");
   }
+
+  const idsFeaturedProducts = [
+  "PWhmcWwHMzA4rZUgePfT",
+  "yJTBkyWPa5ACZerU7YKL"
+];
+
 
   const dispatch = useDispatch();
   const fetchData = async () => {
@@ -33,7 +40,8 @@ export default function InicioComponent() {
       <HeroSection />
       
       <AreaToResolve />
-      <OurProducts />
+      <FeaturedServices featuredIds={idsFeaturedProducts} title="Servicios destacados" />
+      {/* <OurProducts /> */}
       <FeaturedCompanies/>
       <View
         style={{ justifyContent: "center", alignItems: "center", padding: 20 }}
@@ -63,7 +71,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: 700,
+    fontWeight: "700",
     textAlign: "center",
     marginBottom: 10,
   },

@@ -13,14 +13,14 @@ export default function ItemCart({
   onRemove,
   onDelete,
 }) {
-  console.log("image", image);
+  // console.log("image", image);
   return (
     <View style={styles.card}>
       <Image source={{uri: image}} style={styles.image} />
 
       <View style={styles.details}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.price}>${price.toLocaleString()}</Text>
+        {/* <Text style={styles.price}>${price.toLocaleString()}</Text> */}
         <View style={styles.actionsRow}>
           <View style={styles.quantityContainer}>
             {/* Aumentar cantidad */}

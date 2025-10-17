@@ -43,11 +43,9 @@ type ServicesState = {
   items: Service[];
   loading: boolean;
   error: string | null;
-  // stats simples
   total: number;
   active: number;
   inactive: number;
-  // control de suscripción
   listeningUid: string | null;
 };
 
@@ -61,9 +59,10 @@ const initialState: ServicesState = {
   listeningUid: null,
 };
 
-// --- Helper: parse doc ---
+
 const toService = (docSnap: DocumentData): Service => {
   const d = docSnap.data();
+  // console.log('d',docSnap.id);
   return {
     id: docSnap.id, // usa el id del doc
     title: d.title ?? "",
@@ -71,8 +70,7 @@ const toService = (docSnap: DocumentData): Service => {
     images: Array.isArray(d.images) ? d.images : [],
     pricing: d.pricing,
     price: d.price ?? null,
-    // 🔁 mapeo desde availableProducts
-    ownerId: d.author?.id ?? d.ownerId, // por compat
+    ownerId: d.author?.id ?? d.ownerId,
     ownerName: d.author?.name ?? d.ownerName ?? null,
     ownerEmail: d.author?.email ?? d.ownerEmail ?? null,
     areaIds: d.areaIds ?? [],
@@ -84,8 +82,7 @@ const toService = (docSnap: DocumentData): Service => {
   };
 };
 
-// --- Suscriptor en tiempo real ---
-// Lo exponemos como función para que el componente la controle (montar/desmontar).
+
 export const startMyServicesListener = (
   dispatch: any,
   uid: string
@@ -94,24 +91,24 @@ export const startMyServicesListener = (
   dispatch(setListeningUid(uid));
 
  const q = query(
-  collection(db, "availableProducts"),
+  collection(db, "services"),
   where("author.id", "==", uid),
   orderBy("createdAt", "desc")
 );
 
-
+// console.log('query',q);
  const unsub = onSnapshot(
   q,
   (snap) => {
-    console.log("DBG services snapshot size =>", snap.size);
+    // console.log("DBG services snapshot size =>", snap.size);
     const arr: Service[] = [];
     snap.forEach((docSnap) => arr.push(toService(docSnap)));
-    console.log("DBG services ids =>", arr.map(a => a.id));
+    // console.log("DBG services ids =>", arr.map(a => a.id));
     dispatch(setItems(arr));
     dispatch(setLoading(false));
   },
   (err) => {
-    console.log("DBG services snapshot ERROR =>", err?.code, err?.message);
+    // console.log("DBG services snapshot ERROR =>", err?.code, err?.message);
     dispatch(setError(err?.message ?? "Error al escuchar servicios"));
     dispatch(setLoading(false));
   }
@@ -128,7 +125,7 @@ export const loadMyServicesOnce = createAsyncThunk<
 >("services/loadOnce", async ({ uid }, { rejectWithValue }) => {
   try {
    const q = query(
-  collection(db, "availableProducts"),
+  collection(db, "services"),
   where("author.id", "==", uid),
   orderBy("createdAt", "desc")
 );
@@ -156,7 +153,7 @@ const servicesSlice = createSlice({
   reducers: {
     setItems(state, action: PayloadAction<Service[]>) {
       state.items = action.payload;
-      console.log(state.items);
+      // console.log(state.items);
       state.total = action.payload.length;
       state.active = action.payload.filter((s) => s.isActive).length;
       state.inactive = state.total - state.active;

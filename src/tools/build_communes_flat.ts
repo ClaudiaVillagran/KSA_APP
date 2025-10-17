@@ -31,4 +31,4 @@ flat.sort((a, b) => a.localeCompare(b, "es"));
 
 // Escribe el JSON plano
 fs.writeFileSync(OUTPUT, JSON.stringify(flat, null, 2), "utf8");
-console.log(`OK: generado ${OUTPUT} con ${flat.length} comunas`);
+// console.log(`OK: generado ${OUTPUT} con ${flat.length} comunas`);

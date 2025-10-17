@@ -1,140 +1,141 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Image, Alert, Pressable } from "react-native";
-import { useRoute } from "@react-navigation/native"; // Importa useRoute para acceder a los parámetros
-import { useDispatch, useSelector } from "react-redux"; // Usamos Redux para acceder a las áreas y categorías
-import { RootState } from "../../store/store";
-import { addItemToCart } from "../../store/reducers/cartSlice";
+// screens/ConstructionServicesScreen.jsx
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Image,
+  Pressable,
+} from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { db } from "../../config/firebase";
+import { collection, getDocs, doc } from "firebase/firestore";
+import ProductCard from "../../components/cards/ProductCard";
 
 export default function ConstructionServicesScreen() {
   const route = useRoute();
-  const { categoryId } = route.params; // Accede al categoryId que pasamos desde la pantalla anterior
+  const navigation = useNavigation();
+  const { areaId, categoryId, title } = route.params || {};
 
-  const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
 
-  const dispatch = useDispatch();
-  const [services, setServices] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
+  const loadProducts = useCallback(async () => {
+    if (!areaId || !categoryId) {
+      setError("Faltan parámetros de navegación (areaId o categoryId).");
+      setLoading(false);
+      return;
+    }
 
-  const constructionArea = areas.find(
-    (area) => area.screen === "ConstructionScreen"
-  );
+    try {
+      setLoading(true);
+      setError("");
+
+      // Ruta: areas/{areaId}/categories/{categoryId}/products
+      const catRef = doc(db, "areas", areaId, "categories", categoryId);
+      const productsRef = collection(catRef, "products");
+      const snap = await getDocs(productsRef);
+
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setProducts(list);
+    } catch (e) {
+      console.error(e);
+      setError(
+        "No se pudieron cargar los servicios. Revisa la ruta y permisos."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [areaId, categoryId]);
 
   useEffect(() => {
-    if (constructionArea) {
-      const category = constructionArea.categories.find(
-        (category) => category.id === categoryId
-      );
-      if (category) {
-        setServices(category.products); // Establece los productos de la categoría
-        setCategoryName(category.title); // Establece el nombre de la categoría
-      }
-    }
-  }, [categoryId, areas]);
-  const handleAddToCart = (service) => {
-    dispatch(addItemToCart(service)); // Agregar el servicio al carrito
-     Alert.alert("Producto agregado", `${service.title} ha sido agregado, mira tu al carrito.`, [
-      { text: "OK" },
-    ]);
-  };
-return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Servicios de {categoryName} disponibles</Text>
+    navigation.setOptions({ title: title || "Servicios" });
+  }, [navigation, title]);
 
-      {services.length === 0 ? (
-        <Text style={{ textAlign: "center", marginTop: 20, color: "#888" }}>
-          No hay servicios disponibles para esta categoría.
-        </Text>
-      ) : (
-        <FlatList
-          data={services}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.serviceImage} />
-              <View style={styles.cardContent}>
-                <Text style={styles.serviceTitle}>{item.title}</Text>
-                <Text style={styles.serviceDescription}>
-                  {item.description || "Descripción no disponible"}
-                </Text>
-                <Text style={styles.servicePrice}>Precio: ${item.price}</Text>
-                <Text style={styles.serviceLocation}>
-                  Ubicación: {item.location.join(", ")}
-                </Text>
-                <Pressable onPress={() => handleAddToCart(item)} style={styles.addToCartButton}>
-                  <Text style={styles.addToCartText}>Agregar al carrito</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 8 }}>Cargando servicios…</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "crimson", textAlign: "center" }}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <View style={styles.center}>
+        <Text>No hay servicios en esta categoría aún.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      contentContainerStyle={{ padding: 12 }}
+      data={products}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <ProductCard
+          item={item}
+          onPress={() => {
+            navigation.navigate("ServiceDetailScreen", { item });
+          }}
+          onAddToCart={() => {
+            // si llega a tener precio fijo:
+            // dispatch(addItemToCart({ id: item.id, title: item.title, price: item.price, img: item.img }));
+          }}
+          onQuote={() => {
+            navigation.navigate("ServiceDetailScreen", {
+              item,
+              autoOpenQuote: true,
+            });
+          }}
         />
       )}
-    </View>
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#F5F5F5",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginVertical: 20,
-    textAlign: "center",
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    marginBottom: 16,
+    overflow: "hidden",
+    marginBottom: 12,
+    elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
   },
-  serviceImage: {
-    width: "100%",
-    height: 200,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    resizeMode: "cover",
+  img: { width: "100%", height: 160, resizeMode: "cover" },
+  imgFallback: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F4F6",
   },
-  cardContent: {
-    padding: 16,
-  },
-  serviceTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-  },
-  serviceDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-  },
-  servicePrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#2563EB",
-    marginBottom: 8,
-  },
-  serviceLocation: {
-    fontSize: 14,
-    color: "#888",
-  },
-  addToCartButton: {
-    backgroundColor: "#2563EB",
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  addToCartText: {
-    color: "#fff",
-    fontSize: 16,
-    textAlign: "center",
-  },
+  body: { padding: 12 },
+  title: { fontSize: 16, fontWeight: "600", color: "#111" },
+  desc: { marginTop: 4, color: "#555" },
 });

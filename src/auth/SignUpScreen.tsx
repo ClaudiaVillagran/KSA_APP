@@ -49,8 +49,8 @@ export default function SignUpScreen() {
   const navigation = useNavigation();
 
   const saveUser = async (data) => {
-    console.log('a');
-    console.log(data);
+    // console.log('a');
+    // console.log(data);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,

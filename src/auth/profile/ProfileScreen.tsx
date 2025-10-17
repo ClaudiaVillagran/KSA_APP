@@ -12,7 +12,7 @@ export default function ProfileScreen() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const user = useSelector((state: RootState) => state.userSlice);
-
+  // console.log(user);
   const getInitials = (fullName?: string | null, email?: string | null) => {
     if (fullName && fullName.trim().length > 0) {
       const parts = fullName.trim().split(/\s+/);

@@ -27,7 +27,7 @@ export default function OurProducts() {
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>
-        Conoce nuestros servicios destacados
+        Nuestros servicios
       </Text>
       <FlatList
         horizontal={true}

@@ -13,10 +13,11 @@ import { fetchArea } from "../data/firestoreData/AreasFromFirestore";
 import WelcomeScreen from "./welcomeScreen/WelcomeScreen";
 import { RootState } from "../store/store";
 import BusinessStack from "../navigation/BusinessStack";
+import CompanyProfileScreen from "./featured/CompanyProfileScreen";
+import ServiceDetailScreen from "./services/ServiceDetailScreen";
 
 const Stack = createStackNavigator();
 export default function MainScreen() {
-  
   const user = useSelector((s: RootState) => s.userSlice);
   const dispatch = useDispatch();
   const areaIds = [
@@ -31,43 +32,78 @@ export default function MainScreen() {
     const allAreas = [];
 
     for (const areaId of areaIds) {
-      const area = await fetchArea(areaId); // Obtener área por ID
+      const area = await fetchArea(areaId);
 
       if (area) {
-        allAreas.push(area); // Acumular todas las áreas en el array
+        allAreas.push(area);
       }
     }
-    // console.log(allAreas[0].id);
-    // Almacenar todas las áreas en Redux de una sola vez
-    dispatch(setAreas(allAreas)); // Enviar todas las áreas juntas
+    dispatch(setAreas(allAreas));
   };
 
   useEffect(() => {
-    const areaId = "ChKkfQnvlCDkSPOyoK6a"; // Sustituye con el ID del área que deseas cargar
+    const areaId = "ChKkfQnvlCDkSPOyoK6a";
     loadAreas(areaId);
   }, [dispatch]);
 
   return (
     <View style={styles.containerMain}>
-      <Stack.Navigator screenOptions={{ headerShown: false,  headerBackTitle: 'Atrás' }} initialRouteName="Welcome">
-        <Stack.Screen name="PrincipalTabs" component={PrincipalTabs}  options={{ title: "Atras" }}   />
-        <Stack.Screen name="Welcome" component={WelcomeScreen}  options={{ title: "Atras" }}/>
-        <Stack.Screen name="AuthStack" component={AuthStack} options={{ title: "Atras" }}/>
-
-        <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ title: "Atras" }}/>
+      <Stack.Navigator
+        screenOptions={{ headerShown: false, headerBackTitle: "Atrás" }}
+        initialRouteName="Welcome"
+      >
+        <Stack.Screen
+          name="PrincipalTabs"
+          component={PrincipalTabs}
+          options={{ title: "Atras" }}
+        />
+        <Stack.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+          options={{ title: "Atras" }}
+        />
+        <Stack.Screen
+          name="AuthStack"
+          component={AuthStack}
+          options={{ title: "Atras" }}
+        />
+        <Stack.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{ title: "Atras" }}
+        />
         {/* Muestra BusinessStack solo a business */}
         {user?.isBusiness && (
-          <Stack.Screen name="BusinessStack" component={BusinessStack} options={{ title: "Atras" }}/>
+          <Stack.Screen
+            name="BusinessStack"
+            component={BusinessStack}
+            options={{ title: "Atras" }}
+          />
         )}
         <Stack.Screen
-          options={{ title: "Atras" }}  
+          name="CompanyProfile"
+          component={CompanyProfileScreen}
+          options={{ title: "Perfil de la tienda" }}
+        />
+        <Stack.Screen
+          options={{ title: "Atras" }}
           name="ServicesStack"
           component={ServicesStack}
         />
         <Stack.Screen
-          options={{ headerShown: true, title: "Confirmar Pedido",  }}
+          options={{ headerShown: true, title: "Confirmar Pedido" }}
           name="CheckOutStack"
           component={CheckOutScreen}
+        />
+        <Stack.Screen
+          name="CompanyProfileScreen"
+          component={CompanyProfileScreen}
+          options={{ title: "Proveedor" }}
+        />
+        <Stack.Screen
+          name="ServiceDetailScreen"
+          component={ServiceDetailScreen}
+          options={{ title: "Detalle" }}
         />
       </Stack.Navigator>
     </View>

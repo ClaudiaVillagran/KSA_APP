@@ -1,9 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import CompanyCard from "./CompanyCard";
-import { loadFeaturedCompanies } from "../../store/actions/companyActions";
+import {
+  loadFeaturedCompanies,
+  subscribeFeaturedCompanies,
+} from "../../store/actions/companyActions";
+import { useNavigation } from "@react-navigation/native";
 
 // (Opcional) Skeleton simple sin archivo extra
 function SkeletonCard() {
@@ -23,55 +27,74 @@ function SkeletonCard() {
 
 export default function FeaturedCompanies() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation();
   const { companies, loading } = useSelector((s: RootState) => s.companySlice);
+  const unsubRef = useRef<null | (() => void)>(null);
 
-  const onRefresh = () => {
-    dispatch(loadFeaturedCompanies(10));
-  };
+  console.log("companies", companies);
+  useEffect(() => {
+    const unsub = dispatch(
+      subscribeFeaturedCompanies(10)
+    ) as unknown as () => void;
+    unsubRef.current = unsub;
+
+    // Limpia la suscripción al desmontar la pantalla
+    return () => {
+      if (unsubRef.current) unsubRef.current();
+    };
+  }, [dispatch]);
+
+  // const dispatch = useDispatch<AppDispatch>();
+  // const { companies, loading } = useSelector((s: RootState) => s.companySlice);
+
+  // const onRefresh = () => {
+  //   dispatch(loadFeaturedCompanies(10));
+  // };
 
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Empresas destacadas</Text>
 
       {loading ? (
-          <FlatList
-            horizontal
-            data={[1, 2, 3]}
-            keyExtractor={(k) => String(k)}
-            renderItem={() => <SkeletonCard />}
-            ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-          />
-        ) : companies && companies.length > 0 ? (
-           <FlatList
-        horizontal
-        data={companies}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <CompanyCard
-            name={item.name}
-            logo={item.logo}
-            rating={item.rating}
-            totalProducts={(item as any).totalProducts ?? 0}
-            tags={item.tags}
-            description={item.shortDescription}
-            onPress={() => {
-              console.log("Empresa seleccionada:", item.id);
-            }}
-          />
-        )}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-      />
-        ) : (
-          <View style={{ paddingHorizontal: 16 }}>
-            <Text style={{ color: "#666" }}>
-              Aún no hay empresas destacadas publicadas.
-            </Text>
-          </View>
-        )}
+        <FlatList
+          horizontal
+          data={[1, 2, 3]}
+          keyExtractor={(k) => String(k)}
+          renderItem={() => <SkeletonCard />}
+          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : companies && companies.length > 0 ? (
+        <FlatList
+          horizontal
+          data={companies}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            // FeaturedCompanies.tsx (dentro de renderItem)
+            <CompanyCard
+              name={item.name}
+              logo={item.logo}
+              rating={item.rating}
+              totalProducts={(item as any).totalProducts ?? 0}
+              tags={item.tags}
+              description={item.shortDescription}
+              onOpenProfile={() =>
+                navigation.navigate("CompanyProfile", { companyId: item.id })
+              }
+            />
+          )}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+        />
+      ) : (
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ color: "#666" }}>
+            Aún no hay empresas destacadas publicadas.
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

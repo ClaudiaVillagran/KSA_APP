@@ -366,7 +366,7 @@ const onSubmit = async (data: FormValues) => {
     batch.set(doc(db, "services", serviceId), basePayload);
 
     // availableProducts/{serviceId}
-    batch.set(doc(db, "availableProducts", serviceId), {
+    batch.set(doc(db, "services", serviceId), {
       ...basePayload,
       author: {
         id: user.uid,

@@ -11,7 +11,7 @@ import { fmtCLP } from '../../utils/format';
 export default function MyServicesScreen() {
   const { items, loading } = useSelector((s: RootState) => s.servicesSlice);
 
-  console.log(items);
+  // console.log(items);
   if (loading) {
     return (
       <View style={styles.center}>

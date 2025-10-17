@@ -32,7 +32,7 @@ async function indexUsersByEmail() {
       featured: true,
       updatedAt: Date.now()
     }, { merge: true });
-    console.log(`✔ Enlazado ${doc.id} → users/${uid}`);
+    // console.log(`✔ Enlazado ${doc.id} → users/${uid}`);
   }
 
   console.log("✅ Listo");

@@ -18,16 +18,14 @@ export default function Construction() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
 
+
   const { areas } = useSelector((state: RootState) => state.areaSlice);
-
-  const constructionArea = areas.find(
-    (area) => area.screen === "ConstructionScreen"
-  ); // Filtra la área de construcción
-  // console.log(constructionArea);
-
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
+
+ const constructionArea = areas.find((area) => area.screen === "ConstructionScreen");
+  const constructionAreaId = constructionArea?.id; // 👈 aquí está el areaId
 
   const filteredCards = constructionArea
     ? constructionArea.categories.filter((category) =>
@@ -81,6 +79,7 @@ export default function Construction() {
                 imageUrl={item.img}
                 title={item.title}
                 categoryId={item.id}
+                 areaId={constructionAreaId} 
               />
             ))
           )}

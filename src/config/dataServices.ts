@@ -3,7 +3,7 @@ import { db } from "./firebase"
 
 export const getProductsData = async () => {
     try {
-        const querySnapshot = await getDocs(collection(db, "availableProducts"))
+        const querySnapshot = await getDocs(collection(db, "services"))
         const list = []
         querySnapshot.forEach((doc) => {
             list.push(doc.data())

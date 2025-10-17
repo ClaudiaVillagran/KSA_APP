@@ -64,7 +64,7 @@ export default function CartScreen() {
             <View style={styles.subtotalRow}>
               <Text style={styles.subtotalLabel}>Subtotal:</Text>
               <Text style={styles.subtotalValue}>
-                ${subtotal.toLocaleString()}
+                {/* ${subtotal.toLocaleString()} */}
               </Text>
             </View>
 

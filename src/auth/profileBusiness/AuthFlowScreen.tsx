@@ -128,7 +128,7 @@ export default function AuthFlowScreen() {
   };
 
   const onRegister = async (data: any) => {
-    console.log(data);
+    // console.log(data);
     try {
       const cred = await createUserWithEmailAndPassword(
         auth,

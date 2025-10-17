@@ -1,19 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface BillingInfo {
+export interface BillingInfo {
   razonSocial?: string | null;
   rut?: string | null;
   direccion?: string | null;
 }
 
-interface UserState {
+export interface UserState {
   displayName: string | null;
   email: string | null;
   uid: string | null;
-  // Nuevos campos
+
   isBusiness: boolean;
   businessPlan: string | null; // 'monthly' | 'semiannual' | 'annual' | 'flexible' | null
   billing: BillingInfo | null;
+
+  // (Opcionales) si luego quieres usarlos:
+  featured?: boolean;
+  businessSince?: any;
 }
 
 const initialState: UserState = {
@@ -31,7 +35,6 @@ const userSlice = createSlice({
   reducers: {
     // Permite payloads parciales y mergea sobre el estado actual
     setUser: (state, action: PayloadAction<Partial<UserState>>) => {
-      // console.log("payloadfrom slice", action.payload);
       Object.assign(state, action.payload);
     },
 
@@ -42,9 +45,10 @@ const userSlice = createSlice({
       state.isBusiness = false;
       state.businessPlan = null;
       state.billing = null;
+      state.featured = false;
+      state.businessSince = null;
     },
 
-    // (Opcional) actualizar solo status business
     updateBusinessStatus: (
       state,
       action: PayloadAction<{ isBusiness: boolean; businessPlan?: string | null; billing?: BillingInfo | null }>

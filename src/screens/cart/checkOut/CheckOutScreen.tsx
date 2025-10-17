@@ -148,7 +148,7 @@ export default function CheckOutScreen() {
             items.map((item) => (
               <View key={item.id} style={styles.productItem}>
                 <Text>
-                  {item.title} - ${item.sum.toLocaleString()} x {item.qty}
+                  {/* {item.title} - ${item.sum.toLocaleString()} x {item.qty} */}
                 </Text>
               </View>
             ))
@@ -157,7 +157,7 @@ export default function CheckOutScreen() {
           {/* Total */}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>${total.toLocaleString()}</Text>
+            {/* <Text style={styles.totalValue}>${total.toLocaleString()}</Text> */}
           </View>
         </View>
 

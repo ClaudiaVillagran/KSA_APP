@@ -8,7 +8,7 @@ type Props = {
   totalProducts?: number;
   tags?: string[];
   description?: string;
-  onPress?: () => void;
+  onOpenProfile?: () => void; // <-- único handler
 };
 
 export default function CompanyCard({
@@ -18,10 +18,10 @@ export default function CompanyCard({
   totalProducts = 0,
   tags = [],
   description = "",
-  onPress,
+  onOpenProfile,
 }: Props) {
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={onOpenProfile} style={styles.card}>
       <View style={styles.header}>
         {logo ? (
           <Image source={{ uri: logo }} style={styles.logo} />
@@ -55,12 +55,9 @@ export default function CompanyCard({
       )}
 
       <View style={styles.footer}>
-        <View style={styles.ctaPrimary}>
-          <Text style={styles.ctaPrimaryText}>Ver servicios</Text>
-        </View>
-        <View style={styles.ctaGhost}>
-          <Text style={styles.ctaGhostText}>Perfil</Text>
-        </View>
+        <Pressable style={styles.ctaPrimary} onPress={onOpenProfile}>
+          <Text style={styles.ctaPrimaryText}>Ver perfil</Text>
+        </Pressable>
       </View>
     </Pressable>
   );
@@ -94,7 +91,7 @@ const styles = StyleSheet.create({
     borderColor: "#e5e7eb",
   },
   tagText: { fontSize: 11, color: "#334155" },
-  footer: { flexDirection: "row", gap: 8, marginTop: 12 },
+  footer: { flexDirection: "row", marginTop: 12 },
   ctaPrimary: {
     flex: 1,
     backgroundColor: "#0074D9",
@@ -103,12 +100,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ctaPrimaryText: { color: "#fff", fontWeight: "700" },
-  ctaGhost: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#0074D9",
-  },
-  ctaGhostText: { color: "#0074D9", fontWeight: "700" },
 });
