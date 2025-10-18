@@ -14,7 +14,7 @@ import { db } from "../../config/firebase";
 import { collection, getDocs, doc } from "firebase/firestore";
 import ProductCard from "../../components/cards/ProductCard";
 
-export default function ConstructionServicesScreen() {
+export default function CategorieScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { areaId, categoryId, title } = route.params || {};
@@ -22,6 +22,31 @@ export default function ConstructionServicesScreen() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
+
+    // const dispatch = useDispatch();
+  // const constructionArea = areas.find(
+  //   (area) => area.screen === "InstallationScreen"
+  // );
+
+  // useEffect(() => {
+  //   if (constructionArea) {
+  //     const category = constructionArea.categories.find(
+  //       (category) => category.id === categoryId
+  //     );
+  //     if (category) {
+  //       setServices(category.products); // Establece los productos de la categoría
+  //       setCategoryName(category.title); // Establece el nombre de la categoría
+  //     }
+  //   }
+  // }, [categoryId, areas]);
+  // const handleAddToCart = (service) => {
+  //   dispatch(addItemToCart(service)); // Agregar el servicio al carrito
+  //   Alert.alert(
+  //     "Producto agregado",
+  //     `${service.title} ha sido agregado, mira tu al carrito.`,
+  //     [{ text: "OK" }]
+  //   );
+  // };
 
   const loadProducts = useCallback(async () => {
     if (!areaId || !categoryId) {

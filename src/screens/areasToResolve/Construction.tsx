@@ -7,12 +7,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef } from "react";
-import { ConstructionData } from "../../data/dataAreasToResolve/ConstructionData";
-import ConstructionCard from "../../components/cards/ConstructionCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { RootState } from "../../store/store";
 import { useSelector } from "react-redux";
+import CategoriesCard from "../../components/cards/CategoriesCard";
 
 export default function Construction() {
   const [searchText, setSearchText] = useState("");
@@ -74,7 +73,7 @@ export default function Construction() {
             </Text>
           ) : (
             filteredCards.map((item, index) => (
-              <ConstructionCard
+              <CategoriesCard
                 key={index}
                 imageUrl={item.img}
                 title={item.title}

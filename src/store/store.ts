@@ -13,7 +13,7 @@ const persistConfig = {
   key: "root",
   storage,
   // Agrega companySlice si quieres que persista entre sesiones
-  whitelist: ["userSlice", "cartSlice", "productSlice", "companySlice"], // ← agregué companySlice
+  whitelist: ["userSlice", "cartSlice", "productSlice", "companySlice, servicesSlice"], 
 };
 
 const rootReducer = combineReducers({

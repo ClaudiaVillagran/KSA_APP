@@ -7,29 +7,31 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef } from "react";
-import InstallationCard from "../../components/cards/InstallationCard";
-import { InstallationData } from "../../data/dataAreasToResolve/InstallationData";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import CategoriesCard from "../../components/cards/CategoriesCard";
 
 export default function Installation() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
 
   const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
   const InstallationArea = areas.find(
     (area) => area.screen === "InstallationScreen"
   );
+
+  const installationId = InstallationArea?.id; // 👈 aquí está el areaId
+
   const filteredCards = InstallationArea
     ? InstallationArea.categories.filter((category) =>
         category.title.toLowerCase().includes(searchText.toLowerCase())
       )
     : [];
-  const scrollToTop = () => {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -70,11 +72,12 @@ export default function Installation() {
             </Text>
           ) : (
             filteredCards.map((item, index) => (
-              <InstallationCard
+              <CategoriesCard
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
                 categoryId={item.id}
+                areaId={installationId}
               />
             ))
           )}

@@ -15,6 +15,7 @@ import { RootState } from "../store/store";
 import BusinessStack from "../navigation/BusinessStack";
 import CompanyProfileScreen from "./featured/CompanyProfileScreen";
 import ServiceDetailScreen from "./services/ServiceDetailScreen";
+import SearchResultsScreen from "../components/Sections/SearchResultsScreen";
 
 const Stack = createStackNavigator();
 export default function MainScreen() {
@@ -105,6 +106,8 @@ export default function MainScreen() {
           component={ServiceDetailScreen}
           options={{ title: "Detalle" }}
         />
+        <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
+
       </Stack.Navigator>
     </View>
   );

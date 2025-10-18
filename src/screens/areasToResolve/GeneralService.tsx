@@ -7,24 +7,28 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef } from "react";
-import { ServicesData } from "../../data/dataAreasToResolve/ServicesData";
-import ServiceCard from "../../components/cards/ServiceCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import CategoriesCard from "../../components/cards/CategoriesCard";
 
-export default function Service() {
+export default function GeneralService() {
   const [searchText, setSearchText] = useState("");
   const scrollRef = useRef();
+
   const { areas } = useSelector((state: RootState) => state.areaSlice);
-  const ServiceArea = areas.find((area) => area.screen === "ServiceScreen");
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
-  const filteredCards = ServiceArea
-    ? ServiceArea.categories.filter((category) =>
+  const GeneralServiceArea = areas.find(
+    (area) => area.screen === "ServiceScreen"
+  );
+  const generalServiceAreaId = GeneralServiceArea?.id; 
+
+  const filteredCards = GeneralServiceArea
+    ? GeneralServiceArea.categories.filter((category) =>
         category.title.toLowerCase().includes(searchText.toLowerCase())
       )
     : [];
@@ -67,11 +71,12 @@ export default function Service() {
             </Text>
           ) : (
             filteredCards.map((item, index) => (
-              <ServiceCard
+              <CategoriesCard
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
                 categoryId={item.id}
+                areaId={generalServiceAreaId}
               />
             ))
           )}
@@ -107,7 +112,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // oscurecer un poco la imagen
+    backgroundColor: "rgba(0, 0, 0, 0.6)", 
     width: "100%",
     height: "100%",
     justifyContent: "center",

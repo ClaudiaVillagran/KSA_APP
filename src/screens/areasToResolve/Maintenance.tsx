@@ -7,30 +7,45 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef } from "react";
-import { MaintenanceData } from "../../data/dataAreasToResolve/MaintenanceData";
-import MaintenanceCard from "../../components/cards/MaintenanceCard";
 import { ScrollView } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import CategoriesCard from "../../components/cards/CategoriesCard";
 
 export default function Maintenance() {
-  const [searchText, setSearchText] = useState("");
-  const scrollRef = useRef();
+  // const [searchText, setSearchText] = useState("");
+  // const scrollRef = useRef();
 
-  const { areas } = useSelector((state: RootState) => state.areaSlice);
-  const MaintenanceArea = areas.find(
-    (area) => area.screen === "MaintenanceScreen"
-  );
-  const scrollToTop = () => {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
-  };
+  // const { areas } = useSelector((state: RootState) => state.areaSlice);
+  // const MaintenanceArea = areas.find(
+  //   (area) => area.screen === "MaintenanceScreen"
+  // );
+  // const scrollToTop = () => {
+  //   scrollRef.current?.scrollTo({ y: 0, animated: true });
+  // };
 
-  const filteredCards = MaintenanceArea
-    ? MaintenanceArea.categories.filter((category) =>
-        category.title.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : [];
+  // const filteredCards = MaintenanceArea
+  //   ? MaintenanceArea.categories.filter((category) =>
+  //       category.title.toLowerCase().includes(searchText.toLowerCase())
+  //     )
+  //   : [];
+   const [searchText, setSearchText] = useState("");
+    const scrollRef = useRef();
+  
+    const { areas } = useSelector((state: RootState) => state.areaSlice);
+    const scrollToTop = () => {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    };
+  
+    const MaintenanceArea = areas.find((area) => area.screen === "MaintenanceScreen");
+    const maintenanceAreaId = MaintenanceArea?.id; // 👈 aquí está el areaId
+  
+    const filteredCards = MaintenanceArea
+      ? MaintenanceArea.categories.filter((category) =>
+          category.title.toLowerCase().includes(searchText.toLowerCase())
+        )
+      : [];
   return (
     <View style={{ flex: 1 }}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 80 }}>
@@ -69,11 +84,12 @@ export default function Maintenance() {
             </Text>
           ) : (
             filteredCards.map((item, index) => (
-              <MaintenanceCard
+              <CategoriesCard
                 key={index}
                 imageUrl={item.img}
                 title={item.title}
                 categoryId={item.id}
+              areaId={maintenanceAreaId}
               />
             ))
           )}

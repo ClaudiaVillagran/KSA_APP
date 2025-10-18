@@ -2,16 +2,17 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-export default function ConstructionCard({ imageUrl, title, categoryId, areaId }) {
+export default function CategoriesCard({ imageUrl, title, categoryId, areaId }) {
   const navigation = useNavigation();
   const cleanedUrl = imageUrl?.trim();
 
+  // console.log(areaId);
   const handleViewMore = () => {
   //  console.log("areaId", areaId);
   //     console.log("categoryId", categoryId);
   //  console.log("title", title);
 
-    navigation.navigate("ConstructionServicesScreen", { areaId, categoryId, title });
+    navigation.navigate("CategorieScreen", { areaId, categoryId, title });
   };
 
   return (

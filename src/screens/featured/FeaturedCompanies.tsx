@@ -31,7 +31,7 @@ export default function FeaturedCompanies() {
   const { companies, loading } = useSelector((s: RootState) => s.companySlice);
   const unsubRef = useRef<null | (() => void)>(null);
 
-  console.log("companies", companies);
+  // console.log("companies", companies);
   useEffect(() => {
     const unsub = dispatch(
       subscribeFeaturedCompanies(10)

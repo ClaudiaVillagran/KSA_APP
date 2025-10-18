@@ -8,16 +8,24 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import { AdviceData } from "../../data/dataAreasToResolve/AdviceData";
-import AdviceCard from "../../components/cards/AdviceCard";
+import React, { useRef, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { RootState } from "../../store/store";
 import { useSelector } from "react-redux";
+import CategoriesCard from "../../components/cards/CategoriesCard";
+
 export default function Advice() {
   const [searchText, setSearchText] = useState("");
+  const scrollRef = useRef();
+
   const { areas } = useSelector((state: RootState) => state.areaSlice);
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
   const AdviceArea = areas.find((area) => area.screen === "AdviceScreen");
+  const adviceAreaId = AdviceArea?.id; 
+
   const filteredCards = AdviceArea
     ? AdviceArea.categories.filter((category) =>
         category.title.toLowerCase().includes(searchText.toLowerCase())
@@ -61,11 +69,12 @@ export default function Advice() {
           </Text>
         ) : (
           filteredCards.map((item, index) => (
-            <AdviceCard
+            <CategoriesCard
               key={index}
               imageUrl={item.img}
               title={item.title}
               categoryId={item.id}
+              areaId={adviceAreaId}
             />
           ))
         )}
@@ -94,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // oscurecer un poco la imagen
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     width: "100%",
     height: "100%",
     justifyContent: "center",

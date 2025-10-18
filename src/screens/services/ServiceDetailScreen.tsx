@@ -63,6 +63,7 @@ export default function ServiceDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { item, autoOpenQuote } = (route.params as any) || {};
+
 // console.log(item);
   const images: string[] = Array.isArray(item?.images) ? item.images : [];
   const hero = images?.[0] || item?.img || null;
