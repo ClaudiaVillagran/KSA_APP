@@ -7,11 +7,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import ControllerTextInput from "../components/inputs/ControllerTextInput";
 import { Ionicons } from "@expo/vector-icons";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../config/firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, db, googleProvider } from "../config/firebase";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/reducers/userSlice";
 import { getDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import GoogleButton from "./GoogleButton";
 
 type FormValues = { email: string; password: string };
 
@@ -99,6 +100,9 @@ export default function SignInScreen() {
     }
   };
 
+  // const singinWithGoogle = async() =>{
+  //   await signInWithPopup(auth, googleProvider)
+  // }
   return (
     <View style={styles.container}>
       <View>
@@ -129,9 +133,13 @@ export default function SignInScreen() {
         </Pressable>
       </View>
 
+      <GoogleButton/>
+
       <Pressable style={styles.loginButton} onPress={handleSubmit(saveLog)}>
         <Text style={styles.loginButtonText}>Iniciar sesión</Text>
       </Pressable>
+
+      
 
       <Pressable style={styles.registerButton} onPress={() => navigation.navigate("SignUpScreen")}>
         <Text style={styles.registerButtonText}>Registrarse</Text>

@@ -1,6 +1,12 @@
-// screens/auth/profileBusiness/AuthFlowScreen.tsx
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -16,7 +22,6 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/reducers/userSlice";
 import { Ionicons } from "@expo/vector-icons";
-// ajusta la ruta si tu LogoKsa está en otra carpeta
 import LogoKsa from "../../assets/svg/LogoKsa";
 
 // Validaciones
@@ -57,15 +62,22 @@ export default function AuthFlowScreen() {
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   // Forms
-  const { control: loginControl, handleSubmit: handleLoginSubmit } = useForm({
+  const {
+    control: loginControl,
+    handleSubmit: handleLoginSubmit,
+  } = useForm({
     resolver: yupResolver(loginSchema),
+    shouldUnregister: true, // desmonta limpio al cambiar de modo
   });
 
-  const { control: registerControl, handleSubmit: handleRegisterSubmit } =
-    useForm({
-      resolver: yupResolver(registerSchema),
-      defaultValues: { username: "", email: "", password: "" },
-    });
+  const {
+    control: registerControl,
+    handleSubmit: handleRegisterSubmit,
+  } = useForm({
+    resolver: yupResolver(registerSchema),
+    defaultValues: { username: "", email: "", password: "" },
+    shouldUnregister: true, // desmonta limpio al cambiar de modo
+  });
 
   // Navegación después de auth
   const goNext = () => {
@@ -87,7 +99,6 @@ export default function AuthFlowScreen() {
           uid,
           email: safeEmail,
           displayName: data.displayName || "Usuario",
-          // si tu slice lo soporta:
           isBusiness: !!data.isBusiness,
           businessPlan: data.businessPlan ?? null,
           billing: data.billing ?? null,
@@ -128,7 +139,6 @@ export default function AuthFlowScreen() {
   };
 
   const onRegister = async (data: any) => {
-    // console.log(data);
     try {
       const cred = await createUserWithEmailAndPassword(
         auth,
@@ -137,7 +147,6 @@ export default function AuthFlowScreen() {
       );
       await updateProfile(cred.user, { displayName: data.username });
 
-      // crear/mergear doc en Firestore
       await setDoc(
         doc(db, "users", cred.user.uid),
         {
@@ -162,7 +171,10 @@ export default function AuthFlowScreen() {
 
   // Render
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled" // evita que el teclado bloquee toques
+    >
       {/* Logo + texto intro */}
       <View style={styles.logoWrap}>
         <LogoKsa width={180} height={90} />
@@ -173,12 +185,14 @@ export default function AuthFlowScreen() {
 
       {/* Formulario */}
       {mode === "login" ? (
-        <View style={styles.form}>
+        <View key="login" style={styles.form}>
           <ControllerTextInput
             control={loginControl}
             name="email"
             placeholder="Correo electrónico *"
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
 
           <View style={styles.passwordContainer}>
@@ -187,6 +201,8 @@ export default function AuthFlowScreen() {
               name="password"
               placeholder="Contraseña *"
               secureTextEntry={!showLoginPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <Pressable
               onPress={() => setShowLoginPassword((p) => !p)}
@@ -201,17 +217,21 @@ export default function AuthFlowScreen() {
           </View>
         </View>
       ) : (
-        <View style={styles.form}>
+        <View key="register" style={styles.form}>
           <ControllerTextInput
             control={registerControl}
             name="username"
             placeholder="Nombre completo *"
+            autoCapitalize="words"
+            autoCorrect={false}
           />
           <ControllerTextInput
             control={registerControl}
             name="email"
             placeholder="Correo electrónico *"
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <View style={styles.passwordContainer}>
             <ControllerTextInput
@@ -219,6 +239,8 @@ export default function AuthFlowScreen() {
               name="password"
               placeholder="Contraseña *"
               secureTextEntry={!showRegisterPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <Pressable
               onPress={() => setShowRegisterPassword((p) => !p)}
@@ -234,7 +256,7 @@ export default function AuthFlowScreen() {
         </View>
       )}
 
-      {/* Botones abajo, estilos iguales a tus pantallas */}
+      {/* Botones abajo */}
       <View style={styles.buttonsWrap}>
         {mode === "login" ? (
           <>
@@ -270,14 +292,14 @@ export default function AuthFlowScreen() {
           </>
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
-// Estilos copiados/adaptados desde tus SignIn/SignUp
+// Estilos
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#F3F4F6",
     paddingHorizontal: 30,
     paddingTop: 40,
@@ -302,17 +324,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
+    zIndex: 0, // evita estar por encima de otros inputs
   },
   eyeIconContainer: {
     position: "absolute",
     right: 10,
     top: 10,
+    zIndex: 1,
   },
   buttonsWrap: {
-    marginTop: "auto", // manda los botones hacia abajo
+    marginTop: "auto",
     gap: 10,
   },
-  // Botón azul primario
   loginButton: {
     backgroundColor: "#2563EB",
     paddingVertical: 12,
@@ -326,7 +349,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  // Botón bordeado (secundario)
   registerButton: {
     marginTop: 10,
     width: "100%",

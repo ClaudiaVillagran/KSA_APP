@@ -12,7 +12,7 @@ import CartScreen from "../screens/cart/CartScreen";
 // import InstallationServicesScreen from "../screens/servicesForCategorie/InstallationServicesScreen";
 // import MaintenanceServicesScreen from "../screens/servicesForCategorie/MaintenanceServicesScreen";
 import ServiceFromServicesScreen from "../screens/servicesForCategorie/ServiceFromServicesScreen";
-import CategorieScreen from "../screens/servicesForCategorie/categorieScreen";
+import CategorieScreen from "../screens/servicesForCategorie/CategorieScreen";
 
 const Stack = createStackNavigator();
 

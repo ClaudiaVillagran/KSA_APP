@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -13,66 +13,103 @@ type SupplierFormProps = {
   selectedPlan: "monthly" | "semiannual" | "annual" | "flexible";
 };
 
+const normalizeDigits = (v?: string) =>
+  typeof v === "string" ? v.replace(/\D+/g, "") : v;
+
 const schema = yup
   .object({
     rut: yup
       .string()
-      .required("El RUT es obligatorio")
-      .matches(/^\d{7,8}-[\dkK]$/, "Formato de RUT inválido (ej: 12345678-5)"),
+      .required("El RUT es obligatorio.")
+      .matches(/^\d{7,8}-[\dkK]$/, "Formato de RUT inválido. Ej: 12345678-5"),
+
     companyname: yup
       .string()
-      .required("El nombre es obligatorio")
-      .min(3, "El nombre debe tener al menos 3 caracteres"),
+      .required("La Razón Social es obligatoria.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     commercialine: yup
       .string()
-      .required("El giro comercial es obligatorio")
-      .min(3, "El giro comercial debe tener al menos 3 caracteres"),
+      .required("El giro comercial es obligatorio.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     commercialaddress: yup
       .string()
-      .required("La dirección comercial es obligatoria")
-      .min(3, "La dirección comercial debe tener al menos 3 caracteres"),
+      .required("La dirección comercial es obligatoria.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     streetnumber: yup
       .string()
-      .required("El número de calle es obligatorio")
-      .matches(/^[0-9]+$/, "Sólo pueden ser números"),
+      .transform(normalizeDigits)
+      .required("El número de calle es obligatorio.")
+      .matches(/^\d+$/, "Solo números, sin puntos ni guiones. Ej: 124"),
+
     depnumber: yup
       .string()
-      .required("Este campo es obligatorio")
-      .matches(/^[0-9]+$/, "Sólo pueden ser números"),
+      .transform(normalizeDigits)
+      .required("Este campo es obligatorio.")
+      .matches(/^\d+$/, "Solo números, sin puntos ni guiones. Ej: 302"),
+
     city: yup
       .string()
-      .required("La ciudad es obligatoria")
-      .min(3, "La ciudad debe tener al menos 3 caracteres"),
+      .required("La ciudad es obligatoria.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     region: yup
       .string()
-      .required("La región es obligatoria")
-      .min(3, "La región debe tener al menos 3 caracteres"),
+      .required("La región es obligatoria.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     commune: yup
       .string()
-      .required("La comuna es obligatoria")
-      .min(3, "La comuna debe tener al menos 3 caracteres"),
+      .required("La comuna es obligatoria.")
+      .min(3, "Debe tener al menos 3 caracteres."),
+
     phonenumber: yup
       .string()
-      .required("El número de teléfono es obligatorio")
-      .matches(/^[0-9]+$/, "Sólo pueden ser números")
-      .min(9, "El número debe tener 9 dígitos")
-      .max(9, "El número debe tener 9 dígitos"),
+      .transform(normalizeDigits) // quita +, espacios y guiones
+      .required("El número de teléfono es obligatorio.")
+      .test(
+        "cl-9",
+        "Ingresa 9 dígitos chilenos, sin +56 ni espacios. Ej: 912345678",
+        (v) => !!v && /^\d{9}$/.test(v || "")
+      ),
+
     email: yup
       .string()
-      .required("El correo electrónico es obligatorio")
-      .email("Correo inválido"),
+      .required("El correo electrónico es obligatorio.")
+      .email("Formato de correo inválido. Ej: nombre@dominio.com"),
+
     yearsold: yup
       .string()
-      .required("Este campo es obligatorio")
-      .matches(/^[0-9]+$/, "Sólo pueden ser números"),
+      .transform(normalizeDigits)
+      .required("Este campo es obligatorio.")
+      .matches(/^\d+$/, "Solo números. Ej: 5"),
+
     document: yup
       .mixed()
-      .required("Debes adjuntar un documento")
-      .test("fileAttached", "El documento es obligatorio", (value: any) => {
-        return !!value && !!value.name; // debe tener name
-      }),
+      .required("Debes adjuntar un documento.")
+      .test("fileAttached", "El documento es obligatorio.", (v: any) => !!v && !!v.name),
   })
   .required();
+
+const FIELD_LABELS: Record<string, string> = {
+  rut: "RUT",
+  companyname: "Razón Social",
+  commercialine: "Giro comercial",
+  commercialaddress: "Dirección",
+  streetnumber: "N° calle",
+  depnumber: "N° Depto./Oficina",
+  city: "Ciudad",
+  region: "Región",
+  commune: "Comuna",
+  phonenumber: "Teléfono",
+  email: "Correo electrónico",
+  yearsold: "Años de antigüedad",
+  document: "Documento",
+};
+
+type FormValues = yup.InferType<typeof schema>;
 
 const SupplierForm = ({ selectedPlan }: SupplierFormProps) => {
   const navigation = useNavigation<any>();
@@ -82,115 +119,122 @@ const SupplierForm = ({ selectedPlan }: SupplierFormProps) => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm<FormValues>({ resolver: yupResolver(schema) });
 
-  const onValid = (formData: any) => {
+  const onValid = (formData: FormValues) => {
     const user = auth.currentUser;
-
-    // Payload que reenviaremos por las pantallas
+    console.log("user",user);
+    // Normaliza el teléfono a 9 dígitos (por si llega con espacios u otros)
+    const cleanPhone = (formData?.phonenumber || "").replace(/\D+/g, "");
+    console.log("cleanPhone",cleanPhone);
     const payload = {
-      supplierForm: formData,
+      supplierForm: { ...formData, phonenumber: cleanPhone },
       selectedPlan,
     };
+    console.log("payload",payload);
 
     if (!user) {
-      // No logueado → AuthFlow con redirect
       navigation.navigate("AuthStack", {
         screen: "AuthFlow",
         params: {
           redirectTo: "BillingDetails",
-          redirectParams: { supplierForm: formData, selectedPlan },
+          redirectParams: payload,
         },
       });
       return;
     }
-
-    // Logueado → directo a BillingDetails
+    console.log("userloged", user);
     navigation.navigate("BillingDetails", payload);
   };
 
   const onInvalid = (errs: any) => {
     const firstKey = Object.keys(errs)[0];
-    const msg = errs?.[firstKey]?.message || "Revisa los campos del formulario";
-    alert(msg);
+    const nice = FIELD_LABELS[firstKey] || firstKey;
+    const msg = errs?.[firstKey]?.message || "Revisa los campos del formulario.";
+    Alert.alert("Revisa tu formulario", `${nice}: ${msg}`);
     console.log("Errores de validación:", errs);
   };
 
   return (
     <View style={styles.formContainer}>
-      <Text style={styles.formTitle}>
-        Ingrese a continuación los datos de tu empresa:
-      </Text>
+      <Text style={styles.formTitle}>Ingrese a continuación los datos de tu empresa:</Text>
 
       <ControllerTextInput
         control={control}
         name="rut"
-        placeholder="RUT Empresa (con guión y dígito verificador) *"
+        placeholder="RUT Empresa (con guión) *  Ej: 12345678-5"
+        autoCapitalize="characters"
+        autoCorrect={false}
       />
       <ControllerTextInput
         control={control}
         name="companyname"
-        placeholder="Nombre Empresa / Razón Social *"
+        placeholder="Razón Social *  Ej: Constructora ABC SpA"
+        autoCapitalize="words"
       />
       <ControllerTextInput
         control={control}
         name="commercialine"
-        placeholder="Giro comercial de la empresa *"
+        placeholder="Giro comercial *  Ej: Construcción y mantención"
       />
       <ControllerTextInput
         control={control}
         name="commercialaddress"
-        placeholder="Dirección Comercial (Calle / Avda / Otro) *"
+        placeholder="Dirección *  Ej: Av. Siempre Viva"
       />
       <ControllerTextInput
         control={control}
         name="streetnumber"
-        placeholder="N° calle *"
+        placeholder="N° calle *  Ej: 124"
+        keyboardType="number-pad"
       />
       <ControllerTextInput
         control={control}
         name="depnumber"
-        placeholder="N° Depto. / Edificio *"
+        placeholder="N° Depto./Oficina *  Ej: 302"
+        keyboardType="number-pad"
       />
       <ControllerTextInput
         control={control}
         name="city"
-        placeholder="Ciudad *"
+        placeholder="Ciudad *  Ej: Concepción"
       />
       <ControllerTextInput
         control={control}
         name="region"
-        placeholder="Región (Casa matriz) *"
+        placeholder="Región (casa matriz) *  Ej: Biobío"
       />
       <ControllerTextInput
         control={control}
         name="commune"
-        placeholder="Comuna (Casa matriz) *"
+        placeholder="Comuna (casa matriz) *  Ej: Lota"
       />
       <ControllerTextInput
         control={control}
         name="phonenumber"
-        placeholder="Número de contacto *"
+        placeholder="Teléfono *  Ej: 912345678"
+        keyboardType="phone-pad"
+        autoCapitalize="none"
+        autoCorrect={false}
       />
       <ControllerTextInput
         control={control}
         name="email"
-        placeholder="Correo electrónico *"
+        placeholder="Correo electrónico *  Ej: contacto@empresa.cl"
         keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
       />
       <ControllerTextInput
         control={control}
         name="yearsold"
-        placeholder="Años de antigüedad de la empresa (N°) *"
+        placeholder="Años de antigüedad (N°) *  Ej: 5"
+        keyboardType="number-pad"
       />
 
-      {/* Archivo adjunto */}
       <ControllerDocumentPicker control={control} name="document" />
 
-      <TouchableOpacity
-        style={styles.submitButton}
-        onPress={handleSubmit(onValid, onInvalid)}
-      >
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit(onValid, onInvalid)}>
         <Text style={styles.submitButtonText}>Suscribirse</Text>
       </TouchableOpacity>
     </View>
@@ -204,31 +248,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
+    elevation: 3,
   },
   formTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 16,
     textAlign: "center",
     color: "#333",
   },
   submitButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
+    backgroundColor: "#3BA7E1", // celeste KSA
+    padding: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 16,
   },
-  submitButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
+  submitButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
 });
 
 export default SupplierForm;
