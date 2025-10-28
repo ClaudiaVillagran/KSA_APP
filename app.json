@@ -2,6 +2,7 @@
   "expo": {
     "name": "KSAPP",
     "slug": "KSAPP",
+    "scheme": "ksapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,13 +14,17 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "cl.ksa.ksapp",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "cl.ksa.ksapp",
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -27,12 +32,21 @@
     },
     "plugins": [
       "expo-web-browser",
-       [
-        "@react-native-google-signin/google-signin",
+      [
+        "expo-build-properties",
         {
-          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
-      ]
-    ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6eefad5c-6369-4466-81c7-db46969390c3"
+      }
+    }
   }
 }

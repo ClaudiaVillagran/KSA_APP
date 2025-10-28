@@ -133,7 +133,7 @@ export default function SignInScreen() {
         </Pressable>
       </View>
 
-      <GoogleButton/>
+      {/* <GoogleButton/> */}
 
       <Pressable style={styles.loginButton} onPress={handleSubmit(saveLog)}>
         <Text style={styles.loginButtonText}>Iniciar sesión</Text>

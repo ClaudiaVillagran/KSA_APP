@@ -256,7 +256,7 @@ export default function BecomeSupplier() {
         "Showcase según KPI (ferias/presentaciones)",
         "0% de comisión por venta",
       ],
-      now: "$1.500.000 + IVA / año",
+      now: "$500 + IVA / año",
       normal: "$2.500.000 + IVA / año",
       cta: "Comenzar ahora",
       featured: true,

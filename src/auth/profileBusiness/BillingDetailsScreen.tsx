@@ -49,10 +49,10 @@ const PLAN_META: Record<SelectedPlan, {
   annual: {
     key: "annual",
     label: "Plan Premium (Anual)",
-    price: 1500000,
-    priceLabel: `${fmtCLP(1500000)} + IVA / año`,
-    normalPrice: `${fmtCLP(2500000)} + IVA / año`,
-    fine: ["Sólo 4500 cupos", `${fmtCLP(150000)} + IVA / mes (opcional)`],
+    price: 400,
+    priceLabel: `${fmtCLP(0)} + IVA / año`,
+    normalPrice: `${fmtCLP(500)} + IVA / año`,
+    fine: ["Sólo 4500 cupos", `${fmtCLP(1)} + IVA / mes (opcional)`],
   },
   monthly: {
     key: "monthly",
