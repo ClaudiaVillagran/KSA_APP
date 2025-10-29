@@ -80,7 +80,7 @@ export default function ProfileScreen() {
                     } as never)
                   }
                 >
-                  <Text style={styles.primaryText}>Ir a Panel Proveedor</Text>
+                  <Text style={styles.primaryText}>Ir al Panel Proveedor</Text>
                 </Pressable>
               ) : (
                 <>

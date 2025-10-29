@@ -1,7 +1,18 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
+
+type Props = {
+  id: string;
+  image?: string;           // puede venir vacío o undefined
+  title: string;
+  price: number;
+  qty: number;
+  onAdd: () => void;
+  onRemove: () => void;
+  onDelete: () => void;
+};
 
 export default function ItemCart({
   id,
@@ -12,25 +23,55 @@ export default function ItemCart({
   onAdd,
   onRemove,
   onDelete,
-}) {
-  // console.log("image", image);
+}: Props) {
+  // Estado de la imagen: loading | ok | error
+  const [imgStatus, setImgStatus] = useState<"loading" | "ok" | "error">(
+    image ? "loading" : "error"
+  );
+
+  const showImage = imgStatus === "ok";
+  const showLoading = imgStatus === "loading";
+  const showPlaceholder = imgStatus === "error";
+
   return (
     <View style={styles.card}>
-      <Image source={{uri: image}} style={styles.image} />
+      <View style={styles.imageWrap}>
+        {showImage && !!image ? (
+          <Image
+            source={{ uri: image }}
+            style={styles.image}
+            onLoad={() => setImgStatus("ok")}
+            onLoadEnd={() => {
+              // si no pasó por onLoad (algunas plataformas), mantenemos estado actual
+            }}
+            onError={() => setImgStatus("error")}
+          />
+        ) : showLoading ? (
+          <View style={styles.placeholder}>
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <View style={styles.placeholder}>
+            <AntDesign name="picture" size={22} color="#9aa5b1" />
+            <Text style={styles.placeholderText}>Imagen no disponible</Text>
+          </View>
+        )}
+      </View>
 
       <View style={styles.details}>
-        <Text style={styles.title}>{title}</Text>
-        {/* <Text style={styles.price}>${price.toLocaleString()}</Text> */}
+        <Text style={styles.title} numberOfLines={2}>{title}</Text>
+        <Text style={styles.price}>${price.toLocaleString("es-CL")}</Text>
+
         <View style={styles.actionsRow}>
           <View style={styles.quantityContainer}>
-            {/* Aumentar cantidad */}
+            {/* Disminuir cantidad */}
             <Pressable style={styles.iconButton} onPress={onRemove}>
               <FontAwesome5 name="minus" size={10} color="#348ba8" />
             </Pressable>
 
             <Text style={styles.quantityText}>{qty}</Text>
 
-            {/* Disminuir cantidad */}
+            {/* Aumentar cantidad */}
             <Pressable style={styles.iconButton} onPress={onAdd}>
               <FontAwesome5 name="plus" size={10} color="#348ba8" />
             </Pressable>
@@ -43,10 +84,11 @@ export default function ItemCart({
           </Pressable>
         </View>
       </View>
-      
     </View>
   );
 }
+
+const IMG_SIZE = 80;
 
 const styles = StyleSheet.create({
   card: {
@@ -63,11 +105,36 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: "center",
   },
-  image: {
-    width: 80,
-    height: 80,
+  imageWrap: {
+    width: IMG_SIZE,
+    height: IMG_SIZE,
     borderRadius: 8,
     marginRight: 12,
+    overflow: "hidden",
+    backgroundColor: "#f2f6f9",
+    borderWidth: 1,
+    borderColor: "#e6eef3",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    width: IMG_SIZE,
+    height: IMG_SIZE,
+    resizeMode: "cover",
+  },
+  placeholder: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 6,
+    gap: 4,
+  },
+  placeholderText: {
+    fontSize: 10,
+    color: "#9aa5b1",
+    textAlign: "center",
   },
   details: {
     flex: 1,
@@ -111,7 +178,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 20, // espacio entre contador y eliminar
+    gap: 20,
   },
   deleteButton: {
     flexDirection: "row",

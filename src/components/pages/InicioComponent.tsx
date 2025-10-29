@@ -21,8 +21,10 @@ export default function InicioComponent() {
   }
 
   const idsFeaturedProducts = [
+    "XenJot6Iflr1eFPon8SC",
   "PWhmcWwHMzA4rZUgePfT",
-  "yJTBkyWPa5ACZerU7YKL"
+  "yJTBkyWPa5ACZerU7YKL",
+  "K30rf0v28g3h3566IpMu"
 ];
 
 

@@ -16,6 +16,8 @@ import BusinessStack from "../navigation/BusinessStack";
 import CompanyProfileScreen from "./featured/CompanyProfileScreen";
 import ServiceDetailScreen from "./services/ServiceDetailScreen";
 import SearchResultsScreen from "../components/Sections/SearchResultsScreen";
+import CartCheckoutScreen from "./cart/CartCheckoutScreen";
+import CartBillingDetailsScreen from "./cart/CartBillingDetailsScreen";
 
 const Stack = createStackNavigator();
 export default function MainScreen() {
@@ -97,6 +99,12 @@ export default function MainScreen() {
           component={CheckOutScreen}
         />
         <Stack.Screen
+          name="CartBillingDetails"
+          component={CartBillingDetailsScreen}
+        />
+        <Stack.Screen name="CartCheckout" component={CartCheckoutScreen} />
+
+        <Stack.Screen
           name="CompanyProfileScreen"
           component={CompanyProfileScreen}
           options={{ title: "Proveedor" }}
@@ -107,7 +115,6 @@ export default function MainScreen() {
           options={{ title: "Detalle" }}
         />
         <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
-
       </Stack.Navigator>
     </View>
   );
