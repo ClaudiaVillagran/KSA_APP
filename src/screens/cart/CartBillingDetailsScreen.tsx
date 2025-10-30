@@ -12,13 +12,13 @@ const normalizeDigits = (v?: string) => (typeof v === "string" ? v.replace(/\D+/
 
 const schema = yup.object({
   firstName: yup.string().required("El nombre es obligatorio").min(3, "Mínimo 3 caracteres"),
-  lastName: yup.string().required("Los apellidos son obligatorios").min(3, "Mínimo 3 caracteres"),
-  country: yup.string().required("El país es obligatorio"),
-  commune: yup.string().required("La comuna es obligatoria").min(3, "Mínimo 3 caracteres"),
-  street: yup.string().required("La calle es obligatoria").min(3, "Mínimo 3 caracteres"),
-  phone: yup.string().transform(normalizeDigits).required("El teléfono es obligatorio").matches(/^\d{9}$/, "9 dígitos (sin +56)"),
-  email: yup.string().required("El correo es obligatorio").email("Correo inválido"),
-  note: yup.string().optional(),
+  lastName:  yup.string().required("Los apellidos son obligatorios").min(3, "Mínimo 3 caracteres"),
+  country:   yup.string().required("El país es obligatorio"),
+  commune:   yup.string().required("La comuna es obligatoria").min(3, "Mínimo 3 caracteres"),
+  street:    yup.string().required("La calle es obligatoria").min(3, "Mínimo 3 caracteres"),
+  phone:     yup.string().transform(normalizeDigits).required("El teléfono es obligatorio").matches(/^\d{9}$/, "9 dígitos (sin +56)"),
+  email:     yup.string().required("El correo es obligatorio").email("Correo inválido"),
+  note:      yup.string().optional(),
 }).required();
 
 type FormValues = yup.InferType<typeof schema>;
@@ -35,10 +35,9 @@ export default function CartBillingDetailsScreen() {
 
   const onValid = (formData: FormValues) => {
     if (!items?.length) {
-      Alert.alert("Carrito vacío", "Agrega productos antes de continuar.");
+      Alert.alert("Carrito vacío", "Agrega servicios antes de continuar.");
       return;
     }
-    // snapshot básico de ítems (id, título, precio unit, qty)
     const lineItems = items.map((it: any) => ({
       id: it.id,
       title: it.title,
@@ -47,16 +46,17 @@ export default function CartBillingDetailsScreen() {
       image: it.image || null,
     }));
 
-    navigation.navigate("CartCheckout", {
+    // Ahora vamos a la pantalla de disponibilidad (nuevo paso)
+    navigation.navigate("CartAvailability", {
       billing: {
         firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        country: formData.country.trim(),
-        commune: formData.commune.trim(),
-        street: formData.street.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        note: formData.note?.trim() || "",
+        lastName:  formData.lastName.trim(),
+        country:   formData.country.trim(),
+        commune:   formData.commune.trim(),
+        street:    formData.street.trim(),
+        phone:     formData.phone.trim(),
+        email:     formData.email.trim(),
+        note:      formData.note?.trim() || "",
       },
       lineItems,
     });
@@ -70,18 +70,18 @@ export default function CartBillingDetailsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
-      <Text style={styles.h1}>Datos de contacto y envío</Text>
+      <Text style={styles.h1}>Datos de contacto</Text>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Información del comprador</Text>
         <ControllerTextInput control={control} name="firstName" placeholder="Nombre *" />
-        <ControllerTextInput control={control} name="lastName" placeholder="Apellidos *" />
-        <ControllerTextInput control={control} name="country" placeholder="País * (Ej: Chile)" autoCapitalize="words" />
-        <ControllerTextInput control={control} name="commune" placeholder="Comuna *" autoCapitalize="words" />
-        <ControllerTextInput control={control} name="street" placeholder="Calle y número *" />
-        <ControllerTextInput control={control} name="phone" placeholder="Teléfono * (9 dígitos)" keyboardType="phone-pad" />
-        <ControllerTextInput control={control} name="email" placeholder="Correo electrónico *" keyboardType="email-address" autoCapitalize="none" />
-        <ControllerTextInput control={control} name="note" placeholder="Nota adicional (opcional)" />
+        <ControllerTextInput control={control} name="lastName"  placeholder="Apellidos *" />
+        <ControllerTextInput control={control} name="country"   placeholder="País * (Ej: Chile)" autoCapitalize="words" />
+        <ControllerTextInput control={control} name="commune"   placeholder="Comuna *" autoCapitalize="words" />
+        <ControllerTextInput control={control} name="street"    placeholder="Calle y número *" />
+        <ControllerTextInput control={control} name="phone"     placeholder="Teléfono * (9 dígitos)" keyboardType="phone-pad" />
+        <ControllerTextInput control={control} name="email"     placeholder="Correo electrónico *" keyboardType="email-address" autoCapitalize="none" />
+        <ControllerTextInput control={control} name="note"      placeholder="Nota adicional (opcional)" />
       </View>
 
       <TouchableOpacity onPress={handleSubmit(onValid, onInvalid)} style={styles.cta}>

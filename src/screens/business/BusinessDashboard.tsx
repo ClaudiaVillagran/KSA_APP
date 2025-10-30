@@ -1,4 +1,3 @@
-// screens/business/BusinessDashboard.tsx
 import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Pressable, Platform, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -8,9 +7,9 @@ import { RootState } from "../../store/store";
 import { startMyServicesListener, resetServicesState } from "../../store/reducers/servicesSlice";
 
 export default function BusinessDashboard() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const dispatch = useDispatch();
-  const { items, total, active, inactive, loading } = useSelector((s: RootState) => s.servicesSlice);
+  const { total, inactive, loading } = useSelector((s: RootState) => s.servicesSlice);
   const user = useSelector((s: RootState) => s.userSlice);
   const unsubRef = useRef<null | (() => void)>(null);
 
@@ -54,7 +53,7 @@ export default function BusinessDashboard() {
           <Text style={styles.statLabel}>Pendientes</Text>
         </View>
         <View style={styles.statCard}>
-          {/* Ventas (30d) requiere una colección de órdenes; placeholder por ahora */}
+          {/* Ventas (30d) — placeholder por ahora */}
           <Text style={styles.statNumber}>$0</Text>
           <Text style={styles.statLabel}>Ventas (30d)</Text>
         </View>
@@ -63,7 +62,7 @@ export default function BusinessDashboard() {
       {/* Acciones */}
       <View style={styles.actions}>
         <Pressable
-          onPress={() => navigation.navigate("CreateService" as never)}
+          onPress={() => navigation.navigate("CreateService")}
           style={({ pressed }) => [styles.btn, styles.btnPrimary, pressed && styles.pressed]}
         >
           <View style={styles.btnRow}>
@@ -73,7 +72,7 @@ export default function BusinessDashboard() {
         </Pressable>
 
         <Pressable
-          onPress={() => navigation.navigate("MyServices" as never)}
+          onPress={() => navigation.navigate("MyServices")}
           style={({ pressed }) => [styles.btn, styles.btnOutline, pressed && styles.pressedLight]}
         >
           <View style={styles.btnRow}>
@@ -81,9 +80,20 @@ export default function BusinessDashboard() {
             <Text style={styles.btnOutlineText}>Ver mis servicios</Text>
           </View>
         </Pressable>
+
+        {/* NUEVO: Bandeja de trabajos */}
+        <Pressable
+          onPress={() => navigation.navigate("ProviderJobs")}
+          style={({ pressed }) => [styles.btn, styles.btnOutline, pressed && styles.pressedLight]}
+        >
+          <View style={styles.btnRow}>
+            <Ionicons name="briefcase-outline" size={20} color="#0b1220" />
+            <Text style={styles.btnOutlineText}>Bandeja de trabajos</Text>
+          </View>
+        </Pressable>
       </View>
 
-      {/* Estado de carga / error opcional */}
+      {/* Estado de carga opcional */}
       {loading && (
         <View style={{ marginTop: 12, alignItems: "center" }}>
           <ActivityIndicator />
@@ -121,9 +131,17 @@ const KSA = {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: KSA.surfaceAlt, padding: 16 },
   header: {
-    backgroundColor: KSA.surface, borderRadius: 16, padding: 16,
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2,
+    backgroundColor: KSA.surface,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   h1: { fontSize: 22, fontWeight: "800", color: KSA.text },
   subtitle: { marginTop: 4, fontSize: 13, color: KSA.muted },
@@ -131,8 +149,13 @@ const styles = StyleSheet.create({
   badgeText: { color: "#fff", fontWeight: "800", fontSize: 12 },
   statsRow: { flexDirection: "row", gap: 10, marginTop: 14 },
   statCard: {
-    flex: 1, backgroundColor: KSA.surface, borderRadius: 14, paddingVertical: 14,
-    alignItems: "center", borderWidth: 1, borderColor: KSA.border,
+    flex: 1,
+    backgroundColor: KSA.surface,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: KSA.border,
   },
   statNumber: { fontSize: 20, fontWeight: "800", color: KSA.text },
   statLabel: { marginTop: 2, fontSize: 12, color: KSA.muted },
@@ -143,7 +166,14 @@ const styles = StyleSheet.create({
   btnPrimaryText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   btnOutline: { backgroundColor: "#fff", borderWidth: 1.2, borderColor: KSA.border },
   btnOutlineText: { color: KSA.text, fontWeight: "700", fontSize: 15 },
-  cardHelp: { backgroundColor: "#fff", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: KSA.border, marginTop: 14 },
+  cardHelp: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: KSA.border,
+    marginTop: 14,
+  },
   helpTitle: { fontWeight: "800", color: KSA.text },
   helpText: { marginTop: 6, color: KSA.muted, fontSize: 13, lineHeight: 18 },
   pressed: { opacity: Platform.select({ ios: 0.7, android: 0.85 }), transform: [{ scale: 0.995 }] },

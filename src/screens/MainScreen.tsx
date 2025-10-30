@@ -18,6 +18,11 @@ import ServiceDetailScreen from "./services/ServiceDetailScreen";
 import SearchResultsScreen from "../components/Sections/SearchResultsScreen";
 import CartCheckoutScreen from "./cart/CartCheckoutScreen";
 import CartBillingDetailsScreen from "./cart/CartBillingDetailsScreen";
+import MyBookingsScreen from "./bookings/MyBookingsScreen";
+import BookingDetailScreen from "./bookings/BookingDetailScreen";
+import ProviderJobsScreen from "./provider/ProviderJobsScreen";
+import ProviderJobDetailScreen from "./provider/ProviderJobDetailScreen";
+import CartAvailabilityScreen from "./cart/CartAvailabilityScreen";
 
 const Stack = createStackNavigator();
 export default function MainScreen() {
@@ -103,7 +108,7 @@ export default function MainScreen() {
           component={CartBillingDetailsScreen}
         />
         <Stack.Screen name="CartCheckout" component={CartCheckoutScreen} />
-
+        <Stack.Screen name="CartAvailability" component={CartAvailabilityScreen} />
         <Stack.Screen
           name="CompanyProfileScreen"
           component={CompanyProfileScreen}
@@ -115,6 +120,15 @@ export default function MainScreen() {
           options={{ title: "Detalle" }}
         />
         <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
+
+        <Stack.Screen name="MyBookings" component={MyBookingsScreen} />
+        <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
+
+        <Stack.Screen name="ProviderJobs" component={ProviderJobsScreen} />
+        <Stack.Screen
+          name="ProviderJobDetail"
+          component={ProviderJobDetailScreen}
+        />
       </Stack.Navigator>
     </View>
   );

@@ -10,9 +10,9 @@ import { clearCart } from "../../store/reducers/cartSlice";
 
 export default function ProfileScreen() {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const user = useSelector((state: RootState) => state.userSlice);
-  // console.log(user);
+
   const getInitials = (fullName?: string | null, email?: string | null) => {
     if (fullName && fullName.trim().length > 0) {
       const parts = fullName.trim().split(/\s+/);
@@ -32,7 +32,7 @@ export default function ProfileScreen() {
       await signOut(auth);
       dispatch(clearCart());
       dispatch(clearUser());
-      navigation.navigate("PrincipalTabs" as never);
+      navigation.navigate("PrincipalTabs");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -44,18 +44,18 @@ export default function ProfileScreen() {
       <View style={styles.card}>
         {user && user.uid ? (
           <>
+            {/* Header */}
             <View style={styles.headerRow}>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{initials}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.title}>
-                  {user.displayName || "Usuario"}
-                </Text>
+                <Text style={styles.title}>{user.displayName || "Usuario"}</Text>
                 <Text style={styles.subtitle}>{user.email}</Text>
               </View>
             </View>
 
+            {/* Badge Business */}
             {user?.isBusiness && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
@@ -66,37 +66,45 @@ export default function ProfileScreen() {
 
             <View style={styles.divider} />
 
+            {/* Acciones */}
             <View style={styles.actions}>
+              {/* Acceso CLIENTE: Mis servicios contratados */}
+              <Pressable
+                style={({ pressed }) => [styles.button, styles.outline, pressed && styles.pressed]}
+                onPress={() => navigation.navigate("MyBookings")}
+              >
+                <Text style={styles.outlineText}>Mis servicios contratados</Text>
+              </Pressable>
+
+              {/* Acceso PROVEEDOR (si es business) */}
               {user?.isBusiness ? (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.button,
-                    styles.primary,
-                    pressed && styles.pressed,
-                  ]}
-                  onPress={() =>
-                    navigation.navigate("BusinessStack" as never, {
-                      screen: "BusinessDashboard",
-                    } as never)
-                  }
-                >
-                  <Text style={styles.primaryText}>Ir al Panel Proveedor</Text>
-                </Pressable>
+                <>
+                  <Pressable
+                    style={({ pressed }) => [styles.button, styles.primary, pressed && styles.pressed]}
+                    onPress={() => navigation.navigate("BusinessStack", { screen: "BusinessDashboard" })}
+                  >
+                    <Text style={styles.primaryText}>Ir al Panel Proveedor</Text>
+                  </Pressable>
+
+                {/* Bandeja de trabajos del proveedor */}
+                  <Pressable
+                    style={({ pressed }) => [styles.button, styles.outline, pressed && styles.pressed]}
+                    onPress={() => navigation.navigate("ProviderJobs")}
+                  >
+                    <Text style={styles.outlineText}>Bandeja de trabajos</Text>
+                  </Pressable>
+                </>
               ) : (
                 <>
                   <Text style={styles.helperText}>
                     ¿Tienes un negocio? Solicita tu cuenta Proveedor.
                   </Text>
                   <Pressable
-                    style={({ pressed }) => [
-                      styles.button,
-                      styles.success,
-                      pressed && styles.pressed,
-                    ]}
+                    style={({ pressed }) => [styles.button, styles.success, pressed && styles.pressed]}
                     onPress={() =>
-                      navigation.navigate("ServicesStack" as never, {
+                      navigation.navigate("ServicesStack", {
                         screen: "BecomeSupplier",
-                      } as never)
+                      })
                     }
                   >
                     <Text style={styles.successText}>Quiero ser Proveedor</Text>
@@ -104,23 +112,17 @@ export default function ProfileScreen() {
                 </>
               )}
 
+              {/* Volver al inicio */}
               <Pressable
-                style={({ pressed }) => [
-                  styles.button,
-                  styles.outline,
-                  pressed && styles.pressed,
-                ]}
-                onPress={() => navigation.navigate("PrincipalTabs" as never)}
+                style={({ pressed }) => [styles.button, styles.outline, pressed && styles.pressed]}
+                onPress={() => navigation.navigate("PrincipalTabs")}
               >
                 <Text style={styles.outlineText}>Volver al Inicio</Text>
               </Pressable>
 
+              {/* Logout */}
               <Pressable
-                style={({ pressed }) => [
-                  styles.button,
-                  styles.danger,
-                  pressed && styles.pressedDanger,
-                ]}
+                style={({ pressed }) => [styles.button, styles.danger, pressed && styles.pressedDanger]}
                 onPress={handleLogout}
               >
                 <Text style={styles.dangerText}>Cerrar sesión</Text>
@@ -128,6 +130,7 @@ export default function ProfileScreen() {
             </View>
           </>
         ) : (
+          // Sin usuario autenticado
           <View style={{ alignItems: "center" }}>
             <Text style={styles.title}>No hay usuario autenticado</Text>
             <Text style={styles.subtitle}>
@@ -135,14 +138,8 @@ export default function ProfileScreen() {
             </Text>
             <View style={{ height: 12 }} />
             <Pressable
-              style={({ pressed }) => [
-                styles.button,
-                styles.primary,
-                pressed && styles.pressed,
-              ]}
-              onPress={() =>
-                navigation.navigate("AuthStack" as never, { screen: "Login" } as never)
-              }
+              style={({ pressed }) => [styles.button, styles.primary, pressed && styles.pressed]}
+              onPress={() => navigation.navigate("AuthStack", { screen: "Login" })}
             >
               <Text style={styles.primaryText}>Iniciar sesión</Text>
             </Pressable>
@@ -154,10 +151,10 @@ export default function ProfileScreen() {
 }
 
 const KSA_COLORS = {
-  bg: "#0f2535",          // Azul KSA profundo para acentos decorativos
-  accent: "#ff8a3d",      // Naranja KSA
-  surface: "#FFFFFF",     // Card
-  surfaceAlt: "#F3F4F6",  // Fondo suave
+  bg: "#0f2535",
+  accent: "#ff8a3d",
+  surface: "#FFFFFF",
+  surfaceAlt: "#F3F4F6",
   text: "#0b1220",
   muted: "#6b7785",
   border: "#e9eef4",
@@ -180,7 +177,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 999,
-    backgroundColor: "#0f25351a", // bg con 10% de opacidad
+    backgroundColor: "#0f25351a",
   },
   card: {
     backgroundColor: KSA_COLORS.surface,
@@ -203,7 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0f253512", // leve
+    backgroundColor: "#0f253512",
     borderWidth: 1,
     borderColor: KSA_COLORS.border,
   },

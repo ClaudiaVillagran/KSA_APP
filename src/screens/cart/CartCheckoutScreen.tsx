@@ -2,12 +2,12 @@ import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
-import { doc, setDoc, serverTimestamp, getFirestore, getDoc, addDoc, collection } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getFirestore, getDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/reducers/userSlice";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-// import { clearCart } from "../../store/reducers/cartSlice"; // <- si tienes esta acción, descomenta
+// import { clearCart } from "../../store/reducers/cartSlice";
 
 type LineItem = { id: string; title: string; unitPrice: number; qty: number; image?: string | null };
 type RouteParams = {
@@ -16,9 +16,9 @@ type RouteParams = {
     phone: string; email: string; note?: string;
   };
   lineItems: LineItem[];
+  requested?: { date: string; start: string; end: string } | null;
 };
 
-// Backend (sin slash final) y deep link de retorno:
 const API_BASE = "https://ksapp-backend.onrender.com".replace(/\/+$/, "");
 const CALLBACK = Linking.createURL("pay/return");
 
@@ -33,7 +33,7 @@ export default function CartCheckoutScreen() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
-  const { billing, lineItems }: RouteParams = route.params || { billing: null, lineItems: [] };
+  const { billing, lineItems, requested }: RouteParams = route.params || { billing: null, lineItems: [], requested: null };
 
   const { subtotal, iva, total } = useMemo(() => {
     const sub = (lineItems || []).reduce((acc, it) => acc + (it.unitPrice || 0) * (it.qty || 0), 0);
@@ -91,32 +91,27 @@ export default function CartCheckoutScreen() {
         return;
       }
 
-      // 1) Disparar Webpay (el carrito siempre debiera ser > 0)
+      // 1) Webpay
       let tbkInfo: { tbk: { order: string; token_ws: string; code: string; amount: number } } | null = null;
       if (total > 0) tbkInfo = await pagarConWebpay(total);
 
-      // 2) Guardar datos "de envío/factura" mínimos en perfil (merge)
+      // 2) Guarda últimos datos de contacto
       await setDoc(
         doc(db, "users", uid),
-        {
-          lastCheckoutBilling: billing,
-          updatedAt: serverTimestamp(),
-        },
+        { lastCheckoutBilling: billing, updatedAt: serverTimestamp() },
         { merge: true }
       );
 
-      // 3) Crear orden en users/{uid}/orders
-      await addDoc(collection(db, "users", uid, "orders"), {
-        uid,
-        source: "cart",
+      // 3) Crear bookings (uno por cada ítem del carrito) con "requested"
+      const { createBookingsFromCart } = await import("../services/createBookingsFromCart");
+      const createdBookingIds = await createBookingsFromCart({
         lineItems,
-        amounts: { subtotal, iva, total },
         billing,
-        status: "paid",
-        gateway: "webpay",
         tbk: tbkInfo?.tbk || null,
-        createdAt: serverTimestamp(),
+        // @ts-ignore: el helper aceptará requested; lo actualizamos abajo
+        requested: requested || null,
       });
+      console.log("Bookings creados:", createdBookingIds);
 
       // 4) Refrescar Redux user (opcional)
       const snap = await getDoc(doc(db, "users", uid));
@@ -134,11 +129,11 @@ export default function CartCheckoutScreen() {
         );
       }
 
-      // 5) Vaciar carrito (si tienes acción)
+      // 5) Vaciar carrito si tienes acción
       // dispatch(clearCart());
 
-      Alert.alert("¡Pago recibido!", "Tu pedido fue registrado correctamente.");
-      navigation.replace("PrincipalTabs");
+      Alert.alert("¡Pago recibido!", "Tu(s) servicio(s) fueron contratados. La proveedora te contactará.");
+      navigation.replace("MyBookings");
     } catch (e: any) {
       Alert.alert("Pago no completado", e?.message ?? String(e));
     } finally {
@@ -151,13 +146,12 @@ export default function CartCheckoutScreen() {
       <Text style={styles.h1}>Resumen de pedido</Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Tus productos</Text>
+        <Text style={styles.cardTitle}>Tus servicios</Text>
         {lineItems?.map((it) => (
           <Text key={it.id} style={styles.row}>
             {it.title} · {fmtCLP(it.unitPrice)} × {it.qty}
           </Text>
         ))}
-
         <View style={styles.sep} />
         <Text style={styles.row}><Text style={styles.label}>Subtotal:</Text> {fmtCLP(subtotal)}</Text>
         <Text style={styles.row}><Text style={styles.label}>IVA (19%):</Text> {fmtCLP(iva)}</Text>
@@ -165,13 +159,21 @@ export default function CartCheckoutScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Datos de contacto/envío</Text>
+        <Text style={styles.cardTitle}>Datos de contacto</Text>
         <Text style={styles.row}><Text style={styles.label}>Nombre:</Text> {billing?.firstName} {billing?.lastName}</Text>
         <Text style={styles.row}><Text style={styles.label}>Correo:</Text> {billing?.email}</Text>
         <Text style={styles.row}><Text style={styles.label}>Teléfono:</Text> {billing?.phone}</Text>
         <Text style={styles.row}><Text style={styles.label}>Dirección:</Text> {billing?.street}, {billing?.commune}, {billing?.country}</Text>
         {!!billing?.note && <Text style={styles.row}><Text style={styles.label}>Nota:</Text> {billing?.note}</Text>}
       </View>
+
+      {!!requested && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Disponibilidad propuesta</Text>
+          <Text style={styles.row}><Text style={styles.label}>Fecha:</Text> {requested.date}</Text>
+          <Text style={styles.row}><Text style={styles.label}>Horario:</Text> {requested.start} – {requested.end}</Text>
+        </View>
+      )}
 
       <TouchableOpacity onPress={pay} style={[styles.cta, loading && { opacity: 0.7 }]} disabled={loading}>
         {loading ? (
