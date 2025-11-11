@@ -166,8 +166,8 @@ export default function BecomeSupplier() {
   const [formY, setFormY] = useState<number | null>(null);
 
   // Estado del plan seleccionado para enviar al formulario
-  // Tipos esperados por SupplierForm: "monthly" | "semiannual" | "annual" | "flexible"
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "semiannual" | "annual" | "flexible">("flexible");
+  // Tipos esperados por SupplierForm:"basico" | "pro" | "premium"
+  const [selectedPlan, setSelectedPlan] = useState<"basico" | "pro" | "premium" >("basico");
 
   const { width } = useWindowDimensions();
 
@@ -192,13 +192,13 @@ export default function BecomeSupplier() {
   };
 
   // Mapeo de cards → claves del formulario
-  // Básico = 5% comisión → "flexible"
-  // Pro = precio semestral → "semiannual"
-  // Premium = precio anual (también menciona mensual, pero lo principal es anual) → "annual"
-  const selectPlanAndScroll = (plan: "basic" | "pro" | "premium") => {
-    if (plan === "basic") setSelectedPlan("flexible");
-    if (plan === "pro") setSelectedPlan("semiannual");
-    if (plan === "premium") setSelectedPlan("annual");
+  // Básico = 5% comisión → "basico"
+  // Pro = precio semestral → "pro"
+  // Premium = precio anual (también menciona mensual, pero lo principal es anual) → "premium"
+  const selectPlanAndScroll = (plan: "basico" | "pro" | "premium") => {
+    if (plan === "basico") setSelectedPlan("basico");
+    if (plan === "pro") setSelectedPlan("pro");
+    if (plan === "premium") setSelectedPlan("premium");
     // Ir directo al formulario
     // Le damos un pequeño delay para asegurar que el estado se pinte antes del scroll (opcional).
     requestAnimationFrame(() => goToForm());
@@ -209,7 +209,7 @@ export default function BecomeSupplier() {
 
   const planData = useMemo(() => [
     {
-      key: "basic" as const,
+      key: "basico" as const,
       title: "Básico",
       badge: "Plan Básico",
       points: [
@@ -269,9 +269,9 @@ export default function BecomeSupplier() {
 
   // Etiqueta legible del plan en base a la clave del formulario
   const readablePlanLabel =
-    selectedPlan === "flexible"  ? "Plan Básico (5% comisión)" :
-    selectedPlan === "semiannual"? "Plan Pro (Semestral)" :
-    selectedPlan === "annual"    ? "Plan Premium (Anual)" :
+    selectedPlan === "basico"  ? "Plan Básico (5% comisión)" :
+    selectedPlan === "pro"? "Plan Pro (Semestral)" :
+    selectedPlan === "premium"    ? "Plan Premium (Anual)" :
                                    "Plan Mensual";
 
   return (
@@ -410,7 +410,7 @@ export default function BecomeSupplier() {
                 title="Solicitar más información"
                 primary
                 onPress={() => {
-                  setSelectedPlan("annual"); // premium por defecto
+                  setSelectedPlan("premium"); // premium por defecto
                   goToForm();
                 }}
               />
@@ -460,7 +460,7 @@ export default function BecomeSupplier() {
                 title="Suscribirme"
                 primary
                 onPress={() => {
-                  setSelectedPlan("annual"); // Premium por defecto al suscribirse
+                  setSelectedPlan("premium"); // Premium por defecto al suscribirse
                   goToForm();
                 }}
               />

@@ -12,7 +12,7 @@ export interface UserState {
   uid: string | null;
 
   isBusiness: boolean;
-  businessPlan: string | null; // 'monthly' | 'semiannual' | 'annual' | 'flexible' | null
+  businessPlan: string | null; // 'basico' | 'pro' | 'premium' 
   billing: BillingInfo | null;
 
   // (Opcionales) si luego quieres usarlos:

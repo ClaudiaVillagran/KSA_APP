@@ -10,7 +10,7 @@ import ControllerTextInput from "../../components/inputs/ControllerTextInput";
 import ControllerDocumentPicker from "../../components/inputs/ControllerDocumentPicker";
 
 type SupplierFormProps = {
-  selectedPlan: "monthly" | "semiannual" | "annual" | "flexible";
+  selectedPlan: "basico" | "pro" | "premium" ;
 };
 
 const normalizeDigits = (v?: string) =>

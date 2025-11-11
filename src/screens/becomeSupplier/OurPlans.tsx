@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather as Icon } from "@expo/vector-icons";
 
 type Props = {
-  onPlanSelect: (k: "monthly" | "semiannual" | "annual") => void;
+  onPlanSelect: (k: "basico" | "pro" | "premium") => void;
 };
 
 export default function OurPlans({ onPlanSelect }: Props) {
@@ -41,7 +41,7 @@ export default function OurPlans({ onPlanSelect }: Props) {
             <Text style={styles.note}>Solo pagas 5% de comisión por venta.</Text>
           </View>
 
-          <Pressable style={styles.btn} onPress={() => onPlanSelect("monthly")}>
+          <Pressable style={styles.btn} onPress={() => onPlanSelect("basico")}>
             <Text style={styles.btnText}>Comenzar ahora</Text>
           </Pressable>
         </View>
@@ -69,7 +69,7 @@ export default function OurPlans({ onPlanSelect }: Props) {
             <Text style={styles.cupos}>Solo 500 cupos</Text>
           </View>
 
-          <Pressable style={styles.btn} onPress={() => onPlanSelect("semiannual")}>
+          <Pressable style={styles.btn} onPress={() => onPlanSelect("pro")}>
             <Text style={styles.btnText}>Comenzar ahora</Text>
           </Pressable>
         </View>
@@ -102,7 +102,7 @@ export default function OurPlans({ onPlanSelect }: Props) {
             <Text style={styles.note}>o $150.000 CLP + IVA / mes</Text>
           </View>
 
-          <Pressable style={[styles.btn,{backgroundColor:"#ff8a3d"}]} onPress={() => onPlanSelect("annual")}>
+          <Pressable style={[styles.btn,{backgroundColor:"#ff8a3d"}]} onPress={() => onPlanSelect("premium")}>
             <Text style={styles.btnText}>Comenzar ahora</Text>
           </Pressable>
         </View>

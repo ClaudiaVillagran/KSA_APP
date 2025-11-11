@@ -18,7 +18,7 @@ type SupplierFormPayload = {
   document: any;
 };
 
-type SelectedPlan = "monthly" | "semiannual" | "annual" | "flexible";
+type SelectedPlan = "basico" | "pro" | "premium";
 
 const fmtCLP = (n: number) =>
   new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(n);
@@ -31,35 +31,28 @@ const PLAN_META: Record<SelectedPlan, {
   normalPrice?: string;
   fine?: string[];
 }> = {
-  flexible: {
-    key: "flexible",
+  basico: {
+    key: "basico",
     label: "Plan Básico (5% comisión)",
     price: 0,
     priceLabel: "GRATIS",
     fine: ["Sólo pagas 5% de comisión por venta"],
   },
-  semiannual: {
-    key: "semiannual",
+  pro: {
+    key: "pro",
     label: "Plan Pro (Semestral)",
     price: 720000,
     priceLabel: `${fmtCLP(720000)} + IVA / semestre`,
     normalPrice: `${fmtCLP(990000)} + IVA`,
     fine: ["Sólo 500 cupos"],
   },
-  annual: {
-    key: "annual",
+  premium: {
+    key: "premium",
     label: "Plan Premium (Anual)",
     price: 400,
     priceLabel: `${fmtCLP(0)} + IVA / año`,
     normalPrice: `${fmtCLP(500)} + IVA / año`,
     fine: ["Sólo 4500 cupos", `${fmtCLP(1)} + IVA / mes (opcional)`],
-  },
-  monthly: {
-    key: "monthly",
-    label: "Plan Premium (Mensual)",
-    price: 150000,
-    priceLabel: `${fmtCLP(150000)} + IVA / mes`,
-    fine: ["Facturación mes a mes"],
   },
 };
 
@@ -68,7 +61,7 @@ export default function BillingDetailsScreen() {
   const route = useRoute<any>();
 
   const { supplierForm, selectedPlan }: { supplierForm?: SupplierFormPayload; selectedPlan?: SelectedPlan } = route.params || {};
-  const safePlan: SelectedPlan = (selectedPlan as SelectedPlan) || "flexible";
+  const safePlan: SelectedPlan = (selectedPlan as SelectedPlan) || "basico";
   const meta = useMemo(() => PLAN_META[safePlan], [safePlan]);
 
   // ⚠️ SIN AUTOCOMPLETAR

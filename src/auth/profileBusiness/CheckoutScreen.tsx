@@ -17,7 +17,7 @@ import { setUser } from "../../store/reducers/userSlice";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 
-type SelectedPlan = "flexible" | "semiannual" | "annual" | "monthly";
+type SelectedPlan = "basico" | "pro" | "premium";
 
 const fmtCLP = (n: number) =>
   new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(n);
@@ -26,35 +26,28 @@ const PLAN_META: Record<
   SelectedPlan,
   { key: SelectedPlan; label: string; price: number; priceLabel: string; normalPrice?: string; fine?: string[] }
 > = {
-  flexible: {
-    key: "flexible",
+  basico: {
+    key: "basico",
     label: "Plan Básico (5% comisión)",
     price: 0,
     priceLabel: "GRATIS",
     fine: ["Sólo pagas 5% de comisión por venta"],
   },
-  semiannual: {
-    key: "semiannual",
+  pro: {
+    key: "pro",
     label: "Plan Pro (Semestral)",
     price: 720000,
     priceLabel: `${fmtCLP(720000)} + IVA / semestre`,
     normalPrice: `${fmtCLP(990000)} + IVA`,
     fine: ["Sólo 500 cupos"],
   },
-  annual: {
-    key: "annual",
+  premium: {
+    key: "premium",
     label: "Plan Premium (Anual)",
     price: 400,
     priceLabel: `${fmtCLP(0)} + IVA / año`,
     normalPrice: `${fmtCLP(500)} + IVA / año`,
     fine: ["Sólo 4500 cupos", `${fmtCLP(500)} + IVA / mes (opcional)`],
-  },
-  monthly: {
-    key: "monthly",
-    label: "Plan Premium (Mensual)",
-    price: 150000,
-    priceLabel: `${fmtCLP(150000)} + IVA / mes`,
-    fine: ["Facturación mes a mes"],
   },
 };
 
@@ -72,7 +65,7 @@ export default function CheckoutScreen() {
   const [loading, setLoading] = useState(false);
 
   const { supplierForm, billing, selectedPlan: rawSelectedPlan, orderItem } = route.params || {};
-  const selectedPlan: SelectedPlan = (rawSelectedPlan as SelectedPlan) || "flexible";
+  const selectedPlan: SelectedPlan = (rawSelectedPlan as SelectedPlan) || "basico";
 
   // Deriva datos del plan
   const meta = useMemo(() => PLAN_META[selectedPlan], [selectedPlan]);
