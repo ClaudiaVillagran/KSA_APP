@@ -1,5 +1,11 @@
 import React from "react";
-import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 /** Helper seguro para CLP */
@@ -21,10 +27,11 @@ export type AvailableProductsCardProps = {
   title: string;
   author?: string;
   price?: number | null;
-  priceLabel?: string;           // Texto de precio/rango o "A cotizar"
-  isQuote?: boolean;             // Forzar modo cotización
-  onAddToCart?: () => void;      // Acción para carrito
-  onQuote?: () => void;          // Acción para WhatsApp
+  priceLabel?: string;        // Texto de precio/rango o "A cotizar"
+  isQuote?: boolean;          // Forzar modo cotización
+  onAddToCart?: () => void;   // Acción para carrito
+  onQuote?: () => void;       // Acción para WhatsApp
+  onPress?: () => void;       // 👉 Tap en la card (abrir detalle)
 };
 
 export default function AvailableProductsCard({
@@ -36,13 +43,19 @@ export default function AvailableProductsCard({
   isQuote = false,
   onAddToCart,
   onQuote,
+  onPress,
 }: AvailableProductsCardProps) {
   // Label derivado si no viene priceLabel
   const derivedLabel = priceLabel ?? (fmtCLP(price) || "A cotizar");
   const showQuote = isQuote || price == null;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.9}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       {/* Botón flotante superior derecho */}
       {showQuote ? (
         <TouchableOpacity
@@ -90,7 +103,7 @@ export default function AvailableProductsCard({
           {derivedLabel}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

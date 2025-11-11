@@ -59,7 +59,7 @@ export default function ProfileScreen() {
             {user?.isBusiness && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
-                  BUSINESS{user?.businessPlan ? ` • ${user.businessPlan}` : ""}
+                  Plan {user?.businessPlan ? ` • ${user.businessPlan}` : ""}
                 </Text>
               </View>
             )}

@@ -1,37 +1,92 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 type Pricing = {
   currency?: string;
   minPrice?: number | null;
   maxPrice?: number | null;
-  summary?: string; 
-  type?: string;    
+  summary?: string;
+  type?: string;    // "fixed" | "from" | "quote"
 };
 
 type Props = {
   title: string;
   description?: string;
-  price?: number | null;
-  pricing?: Pricing | null;
+  price?: number | null;          // precio raíz (algunos docs lo traen aquí)
+  pricing?: Pricing | null;       // precios extendidos
   images?: (string | { url: string })[];
   categories?: string[];
-  onQuotePress?: () => void;
-  onOpenDetail?: () => void;
+
+  /** Acciones */
+  onQuotePress?: () => void;      // WhatsApp
+  onOpenDetail?: () => void;      // Ir al detalle
+  onAddToCart?: () => void;       // Agregar al carrito
+
+  /** Forzadores opcionales */
+  isQuoteOverride?: boolean;
+  priceLabelOverride?: string;
 };
 
+/** Cover seguro */
 function getCover(images?: (string | { url: string })[]) {
   if (!images || !images.length) return null;
-  const first = images[0] as any;
+  const first: any = images[0];
   return typeof first === "string" ? first : first?.url ?? null;
 }
 
-function formatCLP(n: number) {
+/** CLP seguro */
+function fmtCLP(n?: number | null) {
+  if (typeof n !== "number") return null;
   try {
-    return n.toLocaleString("es-CL");
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0,
+    }).format(n);
   } catch {
-    return String(n);
+    return `$${Number(n).toLocaleString("es-CL")}`;
   }
+}
+
+/** Señal de cotización (tiene opción de cotizar) */
+function hasQuoteSignal(price?: number | null, pricing?: Pricing | null, isQuoteOverride?: boolean) {
+  if (isQuoteOverride) return true;
+  const typeQuote = (pricing?.type || "").toLowerCase() === "quote";
+  const summaryCotiz = (pricing?.summary || "").toLowerCase().includes("cotiz");
+  return typeQuote || summaryCotiz;
+}
+
+/** Tiene precio fijo usable para carrito */
+function hasFixedPrice(price?: number | null, pricing?: Pricing | null) {
+  const fixedType = (pricing?.type || "").toLowerCase() === "fixed";
+  const numericRoot = typeof price === "number";
+  return fixedType || numericRoot;
+}
+
+/** Construye label de precio */
+function buildPriceLabel(
+  price?: number | null,
+  pricing?: Pricing | null,
+  priceLabelOverride?: string
+) {
+  if (priceLabelOverride) return priceLabelOverride;
+
+  if (hasQuoteSignal(price, pricing)) {
+    return pricing?.summary || "A cotizar";
+  }
+
+  if (hasFixedPrice(price, pricing)) {
+    const f = fmtCLP(typeof price === "number" ? price : null);
+    if (f) return f;
+  }
+
+  const min = typeof pricing?.minPrice === "number" ? fmtCLP(pricing?.minPrice!) : null;
+  const max = typeof pricing?.maxPrice === "number" ? fmtCLP(pricing?.maxPrice!) : null;
+  if (min && max) return `${min} - ${max}`;
+  if (min) return min;
+
+  return "—";
 }
 
 export default function ServiceCard({
@@ -43,14 +98,15 @@ export default function ServiceCard({
   categories = [],
   onQuotePress,
   onOpenDetail,
+  onAddToCart,
+  isQuoteOverride,
+  priceLabelOverride,
 }: Props) {
-  // console.log(images);
   const cover = getCover(images);
-  // console.log('cover', cover);
-  const isQuote = !price && (!pricing?.minPrice || pricing?.minPrice === null);
-  const priceLabel = price
-    ? `Desde $${formatCLP(price)}`
-    : pricing?.summary || "Requiere cotización";
+
+  const quote = hasQuoteSignal(price, pricing, isQuoteOverride);  // PRIORIDAD: cotizar
+  const canAddToCart = !quote && hasFixedPrice(price, pricing);   // carrito solo si NO hay cotización
+  const priceLabel = buildPriceLabel(price, pricing, priceLabelOverride);
 
   return (
     <Pressable style={styles.card} onPress={onOpenDetail}>
@@ -59,7 +115,7 @@ export default function ServiceCard({
         <Image source={{ uri: cover }} style={styles.cover} />
       ) : (
         <View style={[styles.cover, styles.coverFallback]}>
-          <Text style={styles.coverFallbackEmoji}>🖼️</Text>
+          <Ionicons name="image-outline" size={26} color="#9aa7b2" />
           <Text style={styles.coverFallbackText}>Sin imagen</Text>
         </View>
       )}
@@ -74,7 +130,6 @@ export default function ServiceCard({
           </Text>
         )}
 
-        {/* Chips: categorías */}
         {!!categories.length && (
           <View style={styles.chips}>
             {categories.slice(0, 3).map((c, i) => (
@@ -90,17 +145,33 @@ export default function ServiceCard({
           </View>
         )}
 
-        {/* Footer: precio y botón */}
+        {/* Footer */}
         <View style={styles.footer}>
           <View style={styles.pricePill}>
             <Text style={styles.priceText}>{priceLabel}</Text>
           </View>
 
-          <Pressable style={[styles.cta, isQuote && styles.ctaPrimary]} onPress={onQuotePress}>
-            <Text style={[styles.ctaText, isQuote && styles.ctaTextPrimary]}>
-              Cotizar
-            </Text>
-          </Pressable>
+          {quote ? (
+            <TouchableOpacity
+              style={[styles.ctaBtn, styles.ctaWhats]}
+              onPress={onQuotePress}
+              accessibilityRole="button"
+              accessibilityLabel="Cotizar por WhatsApp"
+            >
+              <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+              <Text style={styles.ctaBtnText}>Cotizar</Text>
+            </TouchableOpacity>
+          ) : canAddToCart ? (
+            <TouchableOpacity
+              style={[styles.ctaBtn, styles.ctaPrimary]}
+              onPress={onAddToCart}
+              accessibilityRole="button"
+              accessibilityLabel="Agregar al carrito"
+            >
+              <Ionicons name="cart-outline" size={18} color="#fff" />
+              <Text style={styles.ctaBtnText}>Agregar</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </Pressable>
@@ -113,7 +184,8 @@ const R = {
   text: "#0b1220",
   muted: "#6b7280",
   pill: "#f1f5f9",
-  primary: "#0074D9",
+  primary: "#0B7CC4",
+  success: "#25D366",
   shadow: "#000000",
 };
 
@@ -132,11 +204,12 @@ const styles = StyleSheet.create({
   },
   cover: { width: "100%", height: 150, backgroundColor: "#eee" },
   coverFallback: { alignItems: "center", justifyContent: "center" },
-  coverFallbackEmoji: { fontSize: 26, opacity: 0.8 },
   coverFallbackText: { marginTop: 4, color: R.muted, fontSize: 12 },
+
   body: { padding: 12 },
   title: { fontSize: 16, fontWeight: "800", color: R.text },
   desc: { marginTop: 6, color: R.muted, fontSize: 13 },
+
   chips: { flexDirection: "row", gap: 6, flexWrap: "wrap", marginTop: 8 },
   chip: {
     paddingHorizontal: 10,
@@ -147,6 +220,7 @@ const styles = StyleSheet.create({
     borderColor: R.border,
   },
   chipText: { fontSize: 12, color: "#334155" },
+
   footer: { flexDirection: "row", alignItems: "center", marginTop: 10, gap: 10 },
   pricePill: {
     paddingHorizontal: 10,
@@ -157,19 +231,18 @@ const styles = StyleSheet.create({
     borderColor: R.border,
     flexShrink: 1,
   },
-  priceText: { fontWeight: "700", color: R.text, fontSize: 13 },
-  cta: {
+  priceText: { fontWeight: "800", color: R.text, fontSize: 13 },
+
+  ctaBtn: {
     marginLeft: "auto",
     paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: R.primary,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  ctaPrimary: {
-    backgroundColor: R.primary,
-  },
-  ctaText: { fontWeight: "700", color: R.primary },
-  ctaTextPrimary: { color: "#fff" },
+  ctaPrimary: { backgroundColor: R.primary },
+  ctaWhats: { backgroundColor: R.success },
+  ctaBtnText: { color: "#fff", fontWeight: "800" },
 });
- 

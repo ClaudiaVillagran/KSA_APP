@@ -1,9 +1,11 @@
 import React, { useMemo, useCallback } from "react";
-import { FlatList, StyleSheet, Text, View, Linking } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../store/store";
 import AvailableProductsCard from "../../components/cards/AvailableProductsCard";
 import { addItemToCart } from "../../store/reducers/cartSlice";
+import * as Linking from "expo-linking";
 
 type Props = {
   /** IDs de servicios a mostrar, en el ORDEN que quieres renderizarlos */
@@ -14,11 +16,21 @@ type Props = {
 
 /** === Detecta servicios “a cotizar” === */
 const isQuoteLike = (item: any) => {
-  const rootPriceNull = item?.price == null;
+  const rootPriceNull = item?.price == null && item?.pricing?.price == null;
   const typeQuote = (item?.type || "").toLowerCase() === "quote";
+  const typePricingQuote = (item?.pricing?.type || "").toLowerCase() === "quote";
   const summary = (item?.pricing?.summary || item?.summary || "").toLowerCase();
   const summaryCotizar = summary.includes("cotiz"); // cotizar/cotización...
-  return rootPriceNull || typeQuote || summaryCotizar;
+  return rootPriceNull || typeQuote || typePricingQuote || summaryCotizar;
+};
+
+/** === Tiene precio fijo utilizable para carrito === */
+const canAddToCart = (item: any) => {
+  if (isQuoteLike(item)) return false;
+  if (typeof item?.price === "number") return true;
+  if (typeof item?.pricing?.price === "number") return true;
+  if (typeof item?.pricing?.minPrice === "number") return true;
+  return false;
 };
 
 /** === CLP seguro === */
@@ -31,14 +43,26 @@ const fmtCLP = (n?: number | null) =>
       }).format(n)
     : null;
 
-/** === Label principal de precio === */
+/** === Precio unitario para carrito === */
+const getUnitPrice = (item: any): number | null => {
+  if (typeof item?.price === "number") return item.price;
+  if (typeof item?.pricing?.price === "number") return item.pricing.price;
+  if (typeof item?.pricing?.minPrice === "number") return item.pricing.minPrice;
+  return null;
+};
+
+/** === Label principal de precio (para mostrar) === */
 const getPrimaryPriceLabel = (item: any) => {
   if (isQuoteLike(item)) return item?.pricing?.summary || item?.summary || "A cotizar";
-  if (typeof item?.price === "number") return fmtCLP(item.price)!;
+
+  const unit = getUnitPrice(item);
+  if (typeof unit === "number") return fmtCLP(unit)!;
+
   const min =
     typeof item?.pricing?.minPrice === "number" ? fmtCLP(item.pricing.minPrice) : null;
   const max =
     typeof item?.pricing?.maxPrice === "number" ? fmtCLP(item.pricing.maxPrice) : null;
+
   if (min && max) return `${min} - ${max}`;
   if (min) return min;
   return "—";
@@ -62,13 +86,13 @@ export default function FeaturedServices({
   horizontal = true,
 }: Props) {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   // Fuentes posibles
   const { areas } = useSelector((state: RootState) => state.areaSlice);
   const { products: productSliceProducts } = useSelector(
     (state: RootState) => state.productSlice
   );
-  // Si tienes un serviceSlice con services, lo tomamos (no rompe si no existe)
   const serviceSliceServices =
     (useSelector((state: any) => state?.serviceSlice?.services) as any[]) || [];
 
@@ -105,23 +129,42 @@ export default function FeaturedServices({
   }, [fromAreas, productSliceProducts, serviceSliceServices]);
 
   /** 3) Construye la lista final en el orden exacto de featuredIds */
-  const featuredProducts = useMemo(() => {
-    return featuredIds
-      .map((id) => allById.get(id))
-      .filter(Boolean); // quita IDs no encontrados
-  }, [featuredIds, allById]);
+  const featuredProducts = useMemo(
+    () => featuredIds.map((id) => allById.get(id)).filter(Boolean),
+    [featuredIds, allById]
+  );
 
   /** Handlers */
+
+  // ✅ Agregar al carrito SOLO si tiene precio fijo
   const handleAddToCart = useCallback(
     (item: any) => {
-      dispatch(addItemToCart(item));
+      if (!canAddToCart(item)) {
+        // Si llegara a llamarse en uno de cotizar, no hace nada destructivo
+        return;
+      }
+
+      const unitPrice = getUnitPrice(item);
+      const image = pickImageUrl(item);
+
+      if (typeof unitPrice === "number") {
+        dispatch(
+          addItemToCart({
+            id: item.id,
+            title: item.title,
+            price: unitPrice,
+            qty: 1,
+            image: image || null,
+          })
+        );
+      }
     },
     [dispatch]
   );
 
+  // ✅ WhatsApp para cotizar
   const handleWhatsApp = useCallback((item: any) => {
     const phone = "56944748591";
-    const base = "https://api.whatsapp.com/send";
     const t = item?.title || item?.searchableTitle || "Servicio";
     const code = item?.id ? ` (ID: ${item.id})` : "";
     const loc =
@@ -129,15 +172,30 @@ export default function FeaturedServices({
         ? `, ubicación: ${item.locationIds.join(", ")}`
         : "";
     const txt = `Hola 👋, quiero cotizar "${t}"${code}${loc}. Vengo desde KSAPP.`;
-    const url = `${base}/?phone=${phone}&text=${encodeURIComponent(
+    const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(
       txt
     )}&type=phone_number&app_absent=0`;
     Linking.openURL(url);
   }, []);
 
+  // ✅ Ir al detalle del servicio (tap en la card)
+  const handleOpenDetail = useCallback(
+    (item: any) => {
+      const quote = isQuoteLike(item);
+
+      navigation.navigate(
+        "ServiceDetailScreen" as never,
+        {
+          item,
+          autoOpenQuote: quote, // si quieres que en detalle ya se marque como "a cotizar"
+        } as never
+      );
+    },
+    [navigation]
+  );
+
   /** Estado vacío */
   if (!featuredProducts.length) {
-    // Pequeña ayuda de depuración: ¿cuántos IDs no se encontraron?
     const missing = featuredIds.filter((id) => !allById.has(id));
     return (
       <View style={styles.container}>
@@ -173,12 +231,14 @@ export default function FeaturedServices({
               imageUrl={imageUrl}
               title={item.title}
               author={item.ownerName || item?.author?.name}
-              // comportamiento condicional:
               isQuote={quote}
-              price={item?.price ?? null}
+              price={getUnitPrice(item)}
               priceLabel={displayPrice}
+              // CTA según tipo:
               onAddToCart={() => handleAddToCart(item)}
               onQuote={() => handleWhatsApp(item)}
+              // 👇 Tap en la card → detalle del servicio
+              onPress={() => handleOpenDetail(item)}
             />
           );
         }}
